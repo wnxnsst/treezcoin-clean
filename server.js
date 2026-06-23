@@ -814,8 +814,28 @@ io.on("connection", (socket) => {
 
   let player = null;
 
+  const attachFallbackTimer = setTimeout(() => {
+    if (!player && socket.connected) {
+      player = attachPlayer(socket, {
+        name: "Player"
+      });
+
+      addLog("Hello sinyali gecikti. Oyuncu otomatik masaya alındı.");
+      emitState();
+      createMilestoneOffer(socket, player);
+    }
+  }, 900);
+
   socket.on("hello", (payload) => {
-    if (player) return;
+    clearTimeout(attachFallbackTimer);
+
+    if (player) {
+      emitSession(socket, player);
+      emitState();
+      createMilestoneOffer(socket, player);
+      return;
+    }
+
     player = attachPlayer(socket, payload || {});
     emitState();
     createMilestoneOffer(socket, player);
