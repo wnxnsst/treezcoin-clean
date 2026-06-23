@@ -4,13 +4,21 @@ const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 app.use(express.static("public"));
 
 const WIN_SCORE = 10_000_000;
 const MILLION_SCORE = 1_000_000;
-const MAX_PLAYERS = 6;
+const MILESTONE_STEP = 500_000;
+const MAX_ONLINE_PLAYERS = 6;
+const ADMIN_KEY = "1234";
 
 const cooldowns = {
   mine: 150,
@@ -19,12 +27,64 @@ const cooldowns = {
   steal: 3000,
   tax: 4000,
   rug: 5000,
+  throne: 6000,
   jackpot: 7000
 };
 
 const players = {};
 const logs = [];
 let winner = null;
+
+const safeMilestoneOptions = [
+  {
+    id: "safe_500k",
+    title: "Güvenli Kasa",
+    desc: "Anında +500.000 TREEZ alırsın. Sıkıcı ama çalışıyor."
+  },
+  {
+    id: "instant_1m",
+    title: "Anında 1M",
+    desc: "Anında +1.000.000 TREEZ alırsın. Risk yok, ego var."
+  },
+  {
+    id: "growth_boost",
+    title: "Portföy Büyüt",
+    desc: "Bakiyene %25 eklenir. Bonus en fazla 900.000 TREEZ olur."
+  },
+  {
+    id: "tax_refund",
+    title: "Vergi İadesi",
+    desc: "Diğer oyunculardan %8 toplarsın. Herkesi azıcık sinirlendirir."
+  }
+];
+
+const riskMilestoneOptions = [
+  {
+    id: "wipe_others_25",
+    title: "Kıyamet Fişi",
+    desc: "%25 şansla sen hariç herkes sıfırlanır. Tutmazsa paranının %75'i gider."
+  },
+  {
+    id: "leader_half_38",
+    title: "Taht Darbesi",
+    desc: "%38 şansla en güçlü rakibin parasının yarısını alırsın. Tutmazsa paranının %40'ı gider."
+  },
+  {
+    id: "chaos_collect_35",
+    title: "Piyasa Çöküşü",
+    desc: "%35 şansla herkes %40 kaybeder, sen kaybın %30'unu toplarsın. Tutmazsa paranının %50'si gider."
+  },
+  {
+    id: "double_or_burn",
+    title: "İkiye Katla",
+    desc: "%45 şansla paran x2 olur. Tutmazsa paranının yarısı gider."
+  },
+  {
+    id: "above_you_hit",
+    title: "Üsttekileri Biç",
+    desc: "%50 şansla senden zengin olan herkes %35 kaybeder. Tutmazsa paranının %30'u gider."
+  }
+];
 
 function cleanName(name) {
   return String(name || "Player")
@@ -33,13 +93,33 @@ function cleanName(name) {
     .slice(0, 16) || "Player";
 }
 
+function nameKey(name) {
+  return cleanName(name).toLowerCase();
+}
+
+function formatTreez(value) {
+  return Math.floor(value || 0).toLocaleString("tr-TR");
+}
+
 function addLog(text) {
   logs.push(text);
-  if (logs.length > 12) logs.shift();
+  if (logs.length > 14) logs.shift();
+}
+
+function onlineCount() {
+  return Object.values(players).filter((player) => player.online).length;
 }
 
 function sortedPlayers() {
   return Object.values(players).sort((a, b) => b.score - a.score);
+}
+
+function findOfflinePlayerByName(name) {
+  const key = nameKey(name);
+
+  return Object.values(players).find((player) => {
+    return !player.online && nameKey(player.name) === key;
+  });
 }
 
 function getState() {
@@ -49,7 +129,8 @@ function getState() {
     winner,
     winScore: WIN_SCORE,
     millionScore: MILLION_SCORE,
-    maxPlayers: MAX_PLAYERS
+    milestoneStep: MILESTONE_STEP,
+    maxPlayers: MAX_ONLINE_PLAYERS
   };
 }
 
@@ -62,6 +143,8 @@ function resetGameAfterWin() {
     player.score = 0;
     player.lastGain = 0;
     player.lastAction = {};
+    player.nextMilestone = MILESTONE_STEP;
+    player.pendingMilestone = null;
   });
 
   winner = null;
@@ -113,8 +196,212 @@ function updateGains(before) {
   });
 }
 
+function pickRandom(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function publicMilestoneOffer(offer) {
+  return {
+    milestone: offer.milestone,
+    options: offer.options.map((option) => ({
+      id: option.id,
+      title: option.title,
+      desc: option.desc
+    }))
+  };
+}
+
+function createMilestoneOffer(socket, player) {
+  if (!player) return;
+  if (winner) return;
+
+  if (player.pendingMilestone) {
+    socket.emit("milestoneOffer", publicMilestoneOffer(player.pendingMilestone));
+    return;
+  }
+
+  if (player.score < player.nextMilestone) return;
+
+  const safeOption = pickRandom(safeMilestoneOptions);
+  const riskOption = pickRandom(riskMilestoneOptions);
+
+  player.pendingMilestone = {
+    milestone: player.nextMilestone,
+    options: [safeOption, riskOption]
+  };
+
+  player.nextMilestone += MILESTONE_STEP;
+
+  addLog(`${player.name}, ${formatTreez(player.pendingMilestone.milestone)} TREEZ eşiğine ulaştı. Özel seçim açıldı.`);
+
+  socket.emit("milestoneOffer", publicMilestoneOffer(player.pendingMilestone));
+  emitState();
+}
+
+function applyMilestoneOption(player, optionId) {
+  const option = player.pendingMilestone?.options.find((item) => item.id === optionId);
+
+  if (!option) {
+    return false;
+  }
+
+  player.pendingMilestone = null;
+
+  if (option.id === "safe_500k") {
+    player.score += 500_000;
+    addLog(`${player.name}, Güvenli Kasa seçti ve +500.000 TREEZ aldı.`);
+  }
+
+  if (option.id === "instant_1m") {
+    player.score += 1_000_000;
+    addLog(`${player.name}, Anında 1M seçti ve +1.000.000 TREEZ aldı.`);
+  }
+
+  if (option.id === "growth_boost") {
+    const bonus = Math.min(900_000, Math.floor(player.score * 0.25));
+    player.score += bonus;
+    addLog(`${player.name}, Portföy Büyüt seçti ve +${formatTreez(bonus)} TREEZ aldı.`);
+  }
+
+  if (option.id === "tax_refund") {
+    let total = 0;
+
+    sortedPlayers()
+      .filter((target) => target.id !== player.id && target.score > 0)
+      .forEach((target) => {
+        const amount = Math.floor(target.score * 0.08);
+        target.score -= amount;
+        total += amount;
+      });
+
+    player.score += total;
+    addLog(`${player.name}, Vergi İadesi seçti ve toplam ${formatTreez(total)} TREEZ topladı.`);
+  }
+
+  if (option.id === "wipe_others_25") {
+    if (Math.random() < 0.25) {
+      sortedPlayers()
+        .filter((target) => target.id !== player.id)
+        .forEach((target) => {
+          target.score = 0;
+        });
+
+      addLog(`${player.name}, Kıyamet Fişi tuttu. Herkesin parası sıfırlandı.`);
+    } else {
+      const loss = Math.floor(player.score * 0.75);
+      player.score -= loss;
+
+      addLog(`${player.name}, Kıyamet Fişi denedi ama patladı. ${formatTreez(loss)} TREEZ kaybetti.`);
+    }
+  }
+
+  if (option.id === "leader_half_38") {
+    const target = sortedPlayers().find((p) => p.id !== player.id && p.score > 0);
+
+    if (!target) {
+      addLog(`${player.name}, Taht Darbesi seçti ama hedef bulamadı.`);
+    } else if (Math.random() < 0.38) {
+      const amount = Math.floor(target.score * 0.50);
+
+      target.score -= amount;
+      player.score += amount;
+
+      addLog(`${player.name}, Taht Darbesi tuttu. ${target.name} oyuncusundan ${formatTreez(amount)} TREEZ aldı.`);
+    } else {
+      const loss = Math.floor(player.score * 0.40);
+      player.score -= loss;
+
+      addLog(`${player.name}, Taht Darbesi denedi ama olmadı. ${formatTreez(loss)} TREEZ kaybetti.`);
+    }
+  }
+
+  if (option.id === "chaos_collect_35") {
+    if (Math.random() < 0.35) {
+      let collected = 0;
+
+      sortedPlayers()
+        .filter((target) => target.id !== player.id && target.score > 0)
+        .forEach((target) => {
+          const loss = Math.floor(target.score * 0.40);
+          target.score -= loss;
+          collected += Math.floor(loss * 0.30);
+        });
+
+      player.score += collected;
+
+      addLog(`${player.name}, Piyasa Çöküşü yaptı ve ${formatTreez(collected)} TREEZ topladı.`);
+    } else {
+      const loss = Math.floor(player.score * 0.50);
+      player.score -= loss;
+
+      addLog(`${player.name}, Piyasa Çöküşü denedi ama kendi çöktü. ${formatTreez(loss)} TREEZ kaybetti.`);
+    }
+  }
+
+  if (option.id === "double_or_burn") {
+    if (Math.random() < 0.45) {
+      player.score *= 2;
+      addLog(`${player.name}, İkiye Katla tuttu. Skor x2 oldu.`);
+    } else {
+      const loss = Math.floor(player.score * 0.50);
+      player.score -= loss;
+
+      addLog(`${player.name}, İkiye Katla denedi ama yarısını kaybetti.`);
+    }
+  }
+
+  if (option.id === "above_you_hit") {
+    if (Math.random() < 0.50) {
+      const richerPlayers = sortedPlayers().filter((target) => {
+        return target.id !== player.id && target.score > player.score;
+      });
+
+      if (richerPlayers.length === 0) {
+        player.score += 250_000;
+        addLog(`${player.name}, Üsttekileri Biç seçti ama üstünde kimse yoktu. Teselli +250.000 TREEZ aldı.`);
+      } else {
+        richerPlayers.forEach((target) => {
+          const loss = Math.floor(target.score * 0.35);
+          target.score -= loss;
+        });
+
+        addLog(`${player.name}, Üsttekileri Biç tuttu. Senden zengin herkes %35 kaybetti.`);
+      }
+    } else {
+      const loss = Math.floor(player.score * 0.30);
+      player.score -= loss;
+
+      addLog(`${player.name}, Üsttekileri Biç denedi ama kendi biçildi. ${formatTreez(loss)} TREEZ kaybetti.`);
+    }
+  }
+
+  return true;
+}
+
+app.get("/reset", (req, res) => {
+  if (req.query.key !== ADMIN_KEY) {
+    return res.send("Yetkisiz.");
+  }
+
+  Object.values(players).forEach((player) => {
+    player.score = 0;
+    player.lastGain = 0;
+    player.lastAction = {};
+    player.nextMilestone = MILESTONE_STEP;
+    player.pendingMilestone = null;
+  });
+
+  winner = null;
+  logs.length = 0;
+
+  addLog("Leaderboard temizlendi.");
+  emitState();
+
+  res.send("TREEZCOIN leaderboard temizlendi.");
+});
+
 io.on("connection", (socket) => {
-  if (Object.keys(players).length >= MAX_PLAYERS) {
+  if (onlineCount() >= MAX_ONLINE_PLAYERS) {
     socket.emit("roomFull");
     socket.disconnect();
     return;
@@ -125,25 +412,58 @@ io.on("connection", (socket) => {
     name: "Player",
     score: 0,
     lastGain: 0,
-    lastAction: {}
+    lastAction: {},
+    nextMilestone: MILESTONE_STEP,
+    pendingMilestone: null,
+    online: true
   };
 
   addLog("Yeni oyuncu masaya katıldı.");
   emitState();
 
   socket.on("setName", (name) => {
-    const player = players[socket.id];
+    let player = players[socket.id];
     if (!player) return;
 
-    player.name = cleanName(name);
-    addLog(`${player.name} ismini kaydetti.`);
+    const cleaned = cleanName(name);
+    const offlinePlayer = findOfflinePlayerByName(cleaned);
+
+    if (offlinePlayer && offlinePlayer.id !== player.id) {
+      const oldId = offlinePlayer.id;
+
+      players[socket.id] = {
+        ...offlinePlayer,
+        id: socket.id,
+        name: cleaned,
+        online: true,
+        lastAction: {}
+      };
+
+      delete players[oldId];
+
+      player = players[socket.id];
+
+      addLog(`${player.name} geri döndü. Eski TREEZ bakiyesi korundu.`);
+    } else {
+      player.name = cleaned;
+      player.online = true;
+      addLog(`${player.name} ismini kaydetti.`);
+    }
+
     emitState();
+    createMilestoneOffer(socket, player);
   });
 
   socket.on("action", (type) => {
     const player = players[socket.id];
     if (!player) return;
     if (winner) return;
+
+    if (player.pendingMilestone) {
+      socket.emit("milestoneOffer", publicMilestoneOffer(player.pendingMilestone));
+      return;
+    }
+
     if (!canUse(player, type)) return;
 
     const before = beforeScores();
@@ -151,7 +471,7 @@ io.on("connection", (socket) => {
     if (type === "mine") {
       const gain = 30 + Math.floor(Math.random() * 25) + Math.floor(player.score * 0.004);
       player.score += gain;
-      addLog(`${player.name} TREEZ kazdı: +${gain}`);
+      addLog(`${player.name} TREEZ kazdı: +${formatTreez(gain)}`);
     }
 
     if (type === "greed") {
@@ -188,7 +508,7 @@ io.on("connection", (socket) => {
         target.score -= amount;
         player.score += amount;
 
-        addLog(`${player.name}, ${target.name} oyuncusundan ${amount} TREEZ çaldı.`);
+        addLog(`${player.name}, ${target.name} oyuncusundan ${formatTreez(amount)} TREEZ çaldı.`);
       }
     }
 
@@ -203,7 +523,7 @@ io.on("connection", (socket) => {
         leader.score -= amount;
         player.score += amount;
 
-        addLog(`${player.name}, lider ${leader.name} oyuncusundan ${amount} TREEZ vergi aldı.`);
+        addLog(`${player.name}, lider ${leader.name} oyuncusundan ${formatTreez(amount)} TREEZ vergi aldı.`);
       }
     }
 
@@ -226,6 +546,27 @@ io.on("connection", (socket) => {
       }
     }
 
+    if (type === "throne") {
+      const leader = sortedPlayers()[0];
+
+      if (!leader || leader.id === player.id || leader.score <= 0) {
+        addLog(`${player.name} Taht Soygunu yapamadı. Zaten lider kendisi.`);
+      } else if (Math.random() < 0.38) {
+        const amount = Math.max(1, Math.floor(leader.score * 0.50));
+
+        leader.score -= amount;
+        player.score += amount;
+
+        addLog(`${player.name}, lider ${leader.name} oyuncusundan ${formatTreez(amount)} TREEZ çaldı. Taht sallandı.`);
+      } else {
+        const loss = Math.floor(player.score * 0.75);
+
+        player.score -= loss;
+
+        addLog(`${player.name} Taht Soygunu denedi ama patladı. ${formatTreez(loss)} TREEZ kaybetti.`);
+      }
+    }
+
     if (type === "jackpot") {
       if (player.score < 500) {
         addLog(`${player.name} Jackpot için en az 500 TREEZ lazım.`);
@@ -241,11 +582,40 @@ io.on("connection", (socket) => {
     updateGains(before);
     checkWinner(player);
     emitState();
+    createMilestoneOffer(socket, player);
+  });
+
+  socket.on("milestoneChoice", (optionId) => {
+    const player = players[socket.id];
+    if (!player) return;
+    if (winner) return;
+    if (!player.pendingMilestone) return;
+
+    const before = beforeScores();
+    const ok = applyMilestoneOption(player, optionId);
+
+    if (!ok) return;
+
+    updateGains(before);
+    checkWinner(player);
+    emitState();
+    createMilestoneOffer(socket, player);
   });
 
   socket.on("disconnect", () => {
-    delete players[socket.id];
-    addLog("Bir oyuncu masadan çıktı.");
+    const player = players[socket.id];
+
+    if (!player) return;
+
+    if (player.name === "Player" && player.score <= 0) {
+      delete players[socket.id];
+      addLog("İsimsiz oyuncu masadan çıktı.");
+    } else {
+      player.online = false;
+      player.lastAction = {};
+      addLog(`${player.name} masadan ayrıldı ama TREEZ bakiyesi kaldı.`);
+    }
+
     emitState();
   });
 });
