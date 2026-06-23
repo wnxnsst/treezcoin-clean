@@ -510,38 +510,58 @@ function renderPlayers(state) {
     const badges = [];
     badges.push(badge(player.online ? "online" : "offline", player.online ? "good" : ""));
     badges.push(badge(player.roleTitle || "Rolsüz"));
-    badges.push(badge(player.profile || "Profil yok"));
     if (player.heatTitle) badges.push(badge(player.heatTitle, heatValue >= 51 ? "hot" : "good"));
     if (player.shieldCharges > 0) badges.push(badge(`kalkan ${player.shieldCharges}`, "good"));
     if (player.riskAnalysisCharges > 0) badges.push(badge(`analiz ${player.riskAnalysisCharges}`, "good"));
     if (player.insurance > 0) badges.push(badge("sigorta", "good"));
-    if (player.inventoryCount > 0) badges.push(badge(`eşya ${player.inventoryCount}`));
     if (player.ownedSectors?.length) badges.push(badge(`sektör ${player.ownedSectors.length}`, "good"));
     if (player.bounty) badges.push(badge("bounty", "hot"));
     if (player.hidden) badges.push(badge("gizli"));
     if (player.liquidated) badges.push(badge("likide", "hot"));
-    if (player.pendingMilestone) badges.push(badge("karar bekliyor", "hot"));
+    if (player.pendingMilestone) badges.push(badge("karar", "hot"));
+
+    const pathText = player.companyPathTitle || "Yol yok";
+    const levelText = player.developmentLevel ? `Lv.${player.developmentLevel}` : "";
+    const compactBadges = badges.slice(0, 6).join("");
 
     card.innerHTML = `
-      <div class="${nameClass}">${index + 1}. ${escapeHtml(player.name)}</div>
-      <div class="companyName">${escapeHtml(player.company || "ŞİRKET YOK")}</div>
-      <div>${badges.join("")}</div>
-      <div class="score">${scoreVisible ? formatScore(player.score) : "GİZLİ"} TREEZ</div>
-      <div class="vaultText">Kasa: ${formatScore(player.vault)} TREEZ</div>
-      <div class="smallText">Yol: ${escapeHtml(player.companyPathTitle || "Seçilmedi")} ${player.developmentLevel ? `Lv.${player.developmentLevel}` : ""}</div>
+      <div class="playerHeader">
+        <div class="playerIdentity">
+          <div class="${nameClass} playerName">${index + 1}. ${escapeHtml(player.name)}</div>
+          <div class="companyName">${escapeHtml(player.company || "ŞİRKET YOK")}</div>
+        </div>
+        <div class="rankPill">#${index + 1}</div>
+      </div>
+
+      <div class="badgeLine">${compactBadges}</div>
+
+      <div class="playerMoneyRow">
+        <div class="score">${scoreVisible ? formatScore(player.score) : "GİZLİ"} TREEZ</div>
+        <div class="vaultText">Kasa ${formatScore(player.vault)}</div>
+      </div>
+
+      <div class="playerMetaRow">
+        <span>${escapeHtml(pathText)} ${escapeHtml(levelText)}</span>
+        <span>Isı ${player.heat === null ? "?" : heatValue}</span>
+        <span>İtibar ${player.reputation === null ? "?" : repValue}</span>
+      </div>
+
+      <div class="compactBars">
+        <div class="barLine compact">
+          <div class="barLabel"><span>10M</span><b>${Math.floor(progress)}%</b></div>
+          <div class="barWrap"><div class="barFill progressFill" style="width:${progress}%"></div></div>
+        </div>
+        <div class="barLine compact">
+          <div class="barLabel"><span>Isı</span><b>${player.heat === null ? "?" : heatValue}</b></div>
+          <div class="barWrap"><div class="barFill heatFill" style="width:${heatValue}%"></div></div>
+        </div>
+        <div class="barLine compact">
+          <div class="barLabel"><span>İtibar</span><b>${player.reputation === null ? "?" : repValue}</b></div>
+          <div class="barWrap"><div class="barFill repFill" style="width:${repValue}%"></div></div>
+        </div>
+      </div>
+
       <div class="gain">${gainText}</div>
-      <div class="barLine">
-        <div class="barLabel"><span>10M yolu</span><b>${Math.floor(progress)}%</b></div>
-        <div class="barWrap"><div class="barFill progressFill" style="width:${progress}%"></div></div>
-      </div>
-      <div class="barLine">
-        <div class="barLabel"><span>Isı</span><b>${player.heat === null ? "?" : heatValue}</b></div>
-        <div class="barWrap"><div class="barFill heatFill" style="width:${heatValue}%"></div></div>
-      </div>
-      <div class="barLine">
-        <div class="barLabel"><span>İtibar</span><b>${player.reputation === null ? "?" : repValue}</b></div>
-        <div class="barWrap"><div class="barFill repFill" style="width:${repValue}%"></div></div>
-      </div>
     `;
     playersDiv.appendChild(card);
   });
