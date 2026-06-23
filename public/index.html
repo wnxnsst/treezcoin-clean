@@ -7,507 +7,6 @@
  <style>
   * { box-sizing: border-box; }
   :root {
-   --bg: #06100b;
-   --panel: rgba(7, 18, 12, 0.92);
-   --panel2: rgba(10, 31, 20, 0.88);
-   --line: rgba(206, 255, 210, 0.14);
-   --gold: #facc15;
-   --green: #71ff7a;
-   --red: #ef4444;
-   --blue: #38bdf8;
-   --muted: #a7c7a8;
-   --text: #ecffe9;
-  }
-
-  html, body {
-   margin: 0;
-   width: 100%;
-   height: 100%;
-   overflow: hidden;
-   font-family: Arial, Helvetica, sans-serif;
-   color: var(--text);
-   background:
-    radial-gradient(circle at 14% 6%, rgba(34,197,94,.20), transparent 26%),
-    radial-gradient(circle at 86% 8%, rgba(250,204,21,.16), transparent 24%),
-    linear-gradient(135deg, #040807 0%, #07150d 48%, #020403 100%);
-  }
-
-  body::before {
-   content: "";
-   position: fixed;
-   inset: 0;
-   pointer-events: none;
-   background:
-    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
-   background-size: 38px 38px;
-   opacity: .42;
-   z-index: 0;
-  }
-
-  button, input { font-family: inherit; }
-  #coinRain { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; opacity: .28; }
-  .bgCoin {
-   position: absolute;
-   top: -60px;
-   border-radius: 50%;
-   background: radial-gradient(circle at 30% 30%, #fff7a8, #facc15 44%, #b45309 100%);
-   color: #3b2400;
-   font-weight: 900;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   box-shadow: 0 0 14px rgba(250, 204, 21, 0.55);
-   animation: coinFall linear forwards;
-  }
-  @keyframes coinFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
-
-  .appShell {
-   position: relative;
-   z-index: 2;
-   height: 100vh;
-   width: 100vw;
-   padding: 10px;
-   display: grid;
-   grid-template-rows: 70px minmax(0, 1fr) 24px;
-   gap: 8px;
-  }
-
-  .topCommand {
-   display: grid;
-   grid-template-columns: 250px minmax(0, 1fr) 220px 210px 120px;
-   gap: 8px;
-   min-height: 0;
-  }
-
-  .brandBox, .topBox, .status, .panel, .roleModal .modalBox, .decisionModal .modalBox {
-   background: linear-gradient(180deg, rgba(15, 36, 24, .96), rgba(4, 10, 7, .94));
-   border: 1px solid var(--line);
-   border-radius: 14px;
-   box-shadow: 0 16px 40px rgba(0,0,0,.28), inset 0 0 24px rgba(113,255,122,.035);
-   backdrop-filter: blur(10px);
-  }
-
-  .brandBox {
-   padding: 8px 12px;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-  }
-  .brandTop { display: flex; align-items: center; gap: 8px; }
-  .logoMark {
-   width: 34px; height: 34px; border-radius: 10px;
-   display: grid; place-items: center;
-   font-weight: 1000;
-   color: #051006;
-   background: linear-gradient(135deg, var(--gold), var(--green));
-   box-shadow: 0 0 18px rgba(113,255,122,.28);
-  }
-  h1 { font-size: 20px; margin: 0; letter-spacing: 1.5px; color: var(--green); line-height: 1; }
-  .subtitle { font-size: 10px; color: var(--muted); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .topBox { padding: 8px 10px; min-width: 0; }
-  .topLabel { font-size: 10px; color: var(--gold); font-weight: 900; letter-spacing: .9px; text-transform: uppercase; }
-  .topValue { margin-top: 5px; font-size: 15px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #marketBox { color: var(--green); }
-  #roundBox { color: #dfffe0; }
-  .status {
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   padding: 8px;
-   color: var(--gold);
-   font-size: 12px;
-   font-weight: 900;
-   text-align: center;
-   overflow: hidden;
-  }
-
-  .profileQuick {
-   display: grid;
-   grid-template-columns: 1fr 1fr 94px;
-   gap: 6px;
-   align-items: center;
-  }
-  input {
-   width: 100%;
-   min-width: 0;
-   border: 1px solid rgba(250,204,21,.35);
-   border-radius: 10px;
-   background: rgba(0,0,0,.34);
-   color: var(--text);
-   outline: none;
-   padding: 9px 8px;
-   font-size: 12px;
-   font-weight: 800;
-  }
-  .saveName {
-   height: 36px;
-   border: none;
-   border-radius: 10px;
-   cursor: pointer;
-   font-weight: 1000;
-   font-size: 11px;
-   color: #061006;
-   background: linear-gradient(135deg, var(--gold), var(--green));
-   box-shadow: 0 0 14px rgba(250,204,21,.16);
-  }
-
-  .dashboard {
-   min-height: 0;
-   display: grid;
-   grid-template-columns: 560px minmax(500px, 620px) 300px;
-   justify-content: center;
-   gap: 10px;
-  }
-
-  .leftDeck, .centerDeck, .rightDeck {
-   min-height: 0;
-   display: grid;
-   gap: 8px;
-  }
-  .leftDeck { grid-template-rows: 250px minmax(0, 1fr); }
-  .centerDeck { grid-template-rows: 64px minmax(0, 1fr) 62px; }
-  .rightDeck { grid-template-rows: 195px 165px minmax(0, 1fr); }
-
-  .panel { padding: 10px; min-height: 0; overflow: hidden; }
-  .panelHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-  .panelTitle { color: var(--gold); font-size: 11px; font-weight: 1000; letter-spacing: .8px; text-transform: uppercase; }
-  .panelHint { color: var(--muted); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .sectorGrid {
-   display: grid;
-   grid-template-columns: 1fr 1fr;
-   grid-template-rows: repeat(3, minmax(0, 1fr));
-   gap: 8px;
-   height: calc(100% - 20px);
-  }
-  .sectorCard {
-   min-height: 0;
-   padding: 12px;
-   border-radius: 13px;
-   background: rgba(0,0,0,.28);
-   border: 1px solid rgba(255,255,255,.08);
-   overflow: hidden;
-  }
-  .sectorCard.ownedByMe { border-color: rgba(113,255,122,.75); box-shadow: 0 0 16px rgba(113,255,122,.12); }
-  .sectorLine { display: flex; align-items: center; gap: 6px; min-width: 0; }
-  .sectorIcon { font-size: 20px; width: 20px; text-align: center; }
-  .sectorTitle { color: #fff7ad; font-size: 15px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sectorOwner { margin-top: 6px; color: var(--green); font-size: 12px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sectorDesc { display: none; }
-
-  .actionPanel { min-height: 0; }
-  .actionGrid {
-   height: calc(100% - 20px);
-   display: grid;
-   grid-template-columns: 1fr 1fr;
-   grid-template-rows: repeat(10, minmax(0, 1fr));
-   gap: 8px;
-  }
-  .actionBtn {
-   position: relative;
-   min-height: 0;
-   border: 1px solid rgba(255,255,255,.10);
-   border-radius: 13px;
-   cursor: pointer;
-   overflow: hidden;
-   color: white;
-   text-align: left;
-   padding: 13px 14px;
-   transition: .12s;
-   background: #123;
-   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 10px 20px rgba(0,0,0,.22);
-  }
-  .actionBtn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.58)); z-index: 0; }
-  .actionBtn:hover { transform: translateY(-1px); filter: brightness(1.14); }
-  .actionBtn:active { transform: scale(.98); }
-  .actionBtn.cooling { cursor: not-allowed; filter: grayscale(.35) brightness(.70); }
-  .actionIcon { position: relative; z-index: 2; display: block; font-size: 18px; margin-bottom: 6px; line-height: 1; }
-  .actionTitle, .actionDesc, .actionCost { position: relative; z-index: 2; display: block; }
-  .actionTitle { font-size: 18px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .actionDesc { position: relative; z-index: 2; display: block; margin-top: 4px; font-size: 11.5px; color: rgba(255,255,255,.88); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .actionCost { margin-top: 5px; color: rgba(255,255,255,.82); font-size: 10.5px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cooldownFill { position: absolute; left: 0; bottom: 0; height: 4px; width: 0%; background: linear-gradient(90deg, var(--gold), var(--green)); box-shadow: 0 0 10px var(--gold); z-index: 3; }
-  .mine { background: linear-gradient(135deg, #0f7a3a, #073b1c); }
-  .greed { background: linear-gradient(135deg, #79aa11, #244d0b); }
-  .mega { background: linear-gradient(135deg, #0284c7, #082f49); }
-  .steal { background: linear-gradient(135deg, #7c3aed, #2e1065); }
-  .tax { background: linear-gradient(135deg, #f59e0b, #7c2d12); }
-  .rug { background: linear-gradient(135deg, #ef4444, #450a0a); }
-  .throne { background: linear-gradient(135deg, #facc15, #991b1b); }
-  .jackpot { background: linear-gradient(135deg, #db2777, #312e81); }
-  .shield { background: linear-gradient(135deg, #14b8a6, #064e3b); }
-  .riskScan { background: linear-gradient(135deg, #38bdf8, #1e3a8a); }
-  .vault { background: linear-gradient(135deg, #d97706, #422006); }
-  .insurance { background: linear-gradient(135deg, #22c55e, #14532d); }
-  .blackMarket { background: linear-gradient(135deg, #111827, #7f1d1d); }
-  .rolePower { background: linear-gradient(135deg, #a855f7, #4c1d95); }
-  .sector { background: linear-gradient(135deg, #0ea5e9, #164e63); }
-  .develop { background: linear-gradient(135deg, #f97316, #7c2d12); }
-  .leverage { background: linear-gradient(135deg, #dc2626, #111827); }
-  .reputation { background: linear-gradient(135deg, #fde047, #166534); color: #071007; }
-  .useItem { background: linear-gradient(135deg, #6366f1, #111827); }
-  .evadeRegulator { background: linear-gradient(135deg, #334155, #991b1b); }
-
-  .warning {
-   display: flex;
-   align-items: center;
-   padding: 8px 10px;
-   border-radius: 14px;
-   background: rgba(250,204,21,.09);
-   border: 1px solid rgba(250,204,21,.18);
-   color: #ffe88a;
-   font-size: 12px;
-   font-weight: 900;
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
-  }
-  .winner {
-   position: absolute;
-   left: 50%; top: 50%;
-   transform: translate(-50%, -50%);
-   z-index: 20;
-   color: #fff7ad;
-   font-size: 28px;
-   font-weight: 1000;
-   text-shadow: 0 0 24px var(--gold);
-   pointer-events: none;
-  }
-
-  .playersGrid {
-   height: 100%;
-   display: grid;
-   grid-template-columns: repeat(2, minmax(0, 1fr));
-   grid-auto-rows: minmax(170px, 1fr);
-   gap: 8px;
-   max-width: 760px;
-   margin: 0 auto;
-   align-content: start;
-  }
-  .player {
-   position: relative;
-   min-width: 0;
-   min-height: 0;
-   padding: 10px;
-   border-radius: 14px;
-   background: linear-gradient(180deg, rgba(13, 31, 20, .94), rgba(3, 8, 6, .95));
-   border: 1px solid rgba(250,204,21,.17);
-   overflow: hidden;
-  }
-  .player.selfCard { border: 2px solid rgba(113,255,122,.86); box-shadow: 0 0 24px rgba(113,255,122,.16); }
-  .player.offlineCard { opacity: .56; filter: grayscale(.25); }
-  .player.leaderCard { border: 2px solid rgba(255,171,45,.86); animation: fireGlow .75s infinite alternate; }
-  .player.secondCard { border: 2px solid rgba(56,189,248,.72); box-shadow: 0 0 18px rgba(56,189,248,.18); }
-  .player.redHeat { box-shadow: 0 0 24px rgba(239,68,68,.24), inset 0 0 20px rgba(127,29,29,.13); }
-  .player.leverageOn::after { content: "2x"; position: absolute; right: 8px; top: 8px; color: #fff; background: rgba(220,38,38,.92); padding: 4px 7px; border-radius: 999px; font-size: 10px; font-weight: 1000; }
-  @keyframes fireGlow { from { box-shadow: 0 0 8px rgba(255,90,0,.24); } to { box-shadow: 0 0 22px rgba(255,180,0,.56); } }
-  .fireLeader { color: #fff2a8; font-weight: 1000; text-shadow: 0 0 12px #ff7a00; }
-  .rgbRunner { font-weight: 1000; color: #67e8f9; text-shadow: 0 0 12px #22d3ee; }
-  .normalName { font-weight: 1000; color: #ecffe9; }
-  .playerTop { display: flex; justify-content: space-between; gap: 8px; align-items: start; }
-  .playerName { min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rankPill { flex: 0 0 auto; font-size: 10px; color: #071006; font-weight: 1000; background: var(--gold); border-radius: 999px; padding: 3px 7px; }
-  .companyName { color: var(--muted); font-size: 10px; font-weight: 900; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .score { margin-top: 8px; color: var(--green); font-size: clamp(17px, 1.55vw, 25px); font-weight: 1000; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .vaultText, .smallText { color: #ffef9a; font-size: 10px; font-weight: 800; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .smallText { color: var(--muted); }
-  .gain { position: absolute; right: 10px; bottom: 9px; color: var(--gold); font-size: 12px; font-weight: 1000; }
-  .badgeLine { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 7px; max-height: 42px; overflow: hidden; }
-  .badge { display: inline-flex; align-items: center; max-width: 100%; padding: 3px 6px; border-radius: 999px; font-size: 9px; line-height: 1; color: #eaffd7; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.06); font-weight: 900; white-space: nowrap; }
-  .badge.good { color: #bfffc5; background: rgba(34,197,94,.14); }
-  .badge.hot { color: #ffb4b4; background: rgba(239,68,68,.18); }
-  .miniBars { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
-  .barLine { min-width: 0; }
-  .barLabel { display: flex; justify-content: space-between; gap: 4px; color: var(--muted); font-size: 9px; font-weight: 900; }
-  .barWrap { height: 5px; margin-top: 3px; border-radius: 999px; background: rgba(255,255,255,.10); overflow: hidden; }
-  .barFill { height: 100%; border-radius: 999px; }
-  .progressFill { background: linear-gradient(90deg, var(--green), var(--gold)); }
-  .heatFill { background: linear-gradient(90deg, #22c55e, #facc15, #ef4444); }
-  .repFill { background: linear-gradient(90deg, #ef4444, #facc15, #22c55e); }
-
-  .boardHeader {
-   display: grid;
-   grid-template-columns: repeat(5, minmax(0, 1fr));
-   gap: 8px;
-  }
-  .kpi {
-   background: linear-gradient(180deg, rgba(15, 36, 24, .96), rgba(4, 10, 7, .94));
-   border: 1px solid var(--line);
-   border-radius: 14px;
-   padding: 10px;
-   min-width: 0;
-   overflow: hidden;
-  }
-  .kpi span { display: block; color: var(--muted); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kpi b { display: block; margin-top: 5px; color: var(--text); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .myCompanyPanel, .moneyBoard, .statsBox, .logsPanel { height: 100%; }
-  .statLine, .moneyRow {
-   display: grid;
-   grid-template-columns: minmax(0, 1fr) auto;
-   gap: 8px;
-   align-items: center;
-   padding: 5px 0;
-   border-bottom: 1px solid rgba(255,255,255,.055);
-   font-size: 11px;
-   min-width: 0;
-  }
-  .statLine span, .moneyRow span { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .statLine b, .moneyRow b { color: var(--text); white-space: nowrap; font-size: 11px; }
-  .moneyBoardTitle { color: var(--gold); font-size: 11px; font-weight: 1000; letter-spacing: .8px; margin-bottom: 5px; text-transform: uppercase; }
-  .leaderRow { background: rgba(250,204,21,.08); border-radius: 9px; padding-left: 6px; padding-right: 6px; }
-  .tiny { margin-top: 7px; color: var(--muted); font-size: 10px; line-height: 1.35; max-height: 56px; overflow: hidden; }
-  .logsPanel { padding: 8px; }
-  #logs { height: calc(100% - 18px); overflow: hidden; }
-  .log {
-   padding: 5px 7px;
-   margin-bottom: 5px;
-   border-radius: 8px;
-   background: rgba(255,255,255,.045);
-   border-left: 3px solid rgba(250,204,21,.72);
-   color: #dfffe0;
-   font-size: 10px;
-   line-height: 1.25;
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
-  }
-  .log.important { border-left-color: var(--red); background: rgba(239,68,68,.10); color: #ffe4e4; }
-
-  .bottomTicker {
-   min-height: 0;
-   display: grid;
-   grid-template-columns: minmax(0, 1fr) 210px;
-   gap: 8px;
-   align-items: center;
-  }
-  .tickerBox {
-   height: 24px;
-   border-radius: 10px;
-   border: 1px solid rgba(250,204,21,.15);
-   background: rgba(0,0,0,.28);
-   display: flex;
-   align-items: center;
-   padding: 0 10px;
-   color: var(--muted);
-   font-size: 11px;
-   font-weight: 900;
-   overflow: hidden;
-   white-space: nowrap;
-  }
-
-  .roleModal, .decisionModal {
-   position: fixed;
-   inset: 0;
-   z-index: 100000;
-   display: none;
-   align-items: center;
-   justify-content: center;
-   background: rgba(0,0,0,.74);
-   backdrop-filter: blur(8px);
-   padding: 18px;
-  }
-  .roleModal.show, .decisionModal.show { display: flex; }
-  .modalBox {
-   width: min(900px, 96vw);
-   max-height: 92vh;
-   overflow: hidden;
-   padding: 20px;
-   border-color: rgba(250,204,21,.48) !important;
-  }
-  .modalBox h2 { margin: 0; text-align: center; color: var(--gold); font-size: 28px; }
-  .modalBox p { text-align: center; color: var(--muted); font-size: 13px; }
-  .roleGrid, .decisionOptions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 14px; }
-  .roleCard, .decisionChoice {
-   border: 1px solid rgba(255,255,255,.10);
-   border-radius: 16px;
-   cursor: pointer;
-   text-align: left;
-   color: white;
-   padding: 14px;
-   min-height: 118px;
-   background: linear-gradient(135deg, #166534, #14532d);
-   transition: .14s;
-  }
-  .roleCard:hover, .decisionChoice:hover { transform: translateY(-2px); filter: brightness(1.14); }
-  .decisionChoice:nth-child(2) { background: linear-gradient(135deg, #991b1b, #312e81); }
-  .decisionChoice:nth-child(3) { background: linear-gradient(135deg, #0f766e, #1e3a8a); }
-  .roleCard strong, .decisionChoice strong { display: block; color: #fff7ad; font-size: 17px; margin-bottom: 8px; }
-  .roleCard span, .decisionChoice span { display: block; color: #f5ffe9; font-size: 12px; line-height: 1.35; margin-top: 5px; }
-
-  .toast {
-   position: fixed;
-   left: 50%;
-   bottom: 34px;
-   transform: translateX(-50%);
-   z-index: 200000;
-   background: rgba(0,0,0,.90);
-   color: var(--gold);
-   border: 1px solid rgba(250,204,21,.45);
-   padding: 10px 14px;
-   border-radius: 999px;
-   font-size: 12px;
-   font-weight: 1000;
-   display: none;
-   max-width: 78vw;
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
-  }
-  .toast.show { display: block; animation: toastPop 1.8s ease-out forwards; }
-  @keyframes toastPop {
-   0% { opacity: 0; transform: translateX(-50%) translateY(16px); }
-   15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-   80% { opacity: 1; }
-   100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
-  }
-  .floating { position: fixed; pointer-events: none; font-weight: 1000; color: #fff700; text-shadow: 0 0 8px #fff700; animation: floatUp .85s ease-out forwards; z-index: 9999; }
-  @keyframes floatUp { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-70px) scale(1.45); } }
-  .particle, .explosionParticle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 9998; background: var(--gold); box-shadow: 0 0 12px var(--gold); animation: particlePop .6s ease-out forwards; }
-  .particle { width: 7px; height: 7px; }
-  .explosionParticle { width: 10px; height: 10px; z-index: 99998; background: radial-gradient(circle, #fff7ad, #f97316, #dc2626); animation: particlePop .95s ease-out forwards; }
-  @keyframes particlePop { to { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
-  @keyframes shake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-5px,2px); } 40% { transform: translate(4px,-3px); } 60% { transform: translate(-3px,-2px); } 80% { transform: translate(3px,2px); } }
-  body.screenShake { animation: shake .38s linear; }
-
-  @media (max-width: 1180px), (max-height: 720px) {
-   .appShell { padding: 7px; grid-template-rows: 62px minmax(0, 1fr) 22px; gap: 6px; }
-   .topCommand { grid-template-columns: 190px minmax(0, 1fr) 170px 160px 100px; gap: 6px; }
-   h1 { font-size: 17px; }
-   .subtitle { font-size: 9px; }
-   .dashboard { grid-template-columns: 480px minmax(420px, 1fr) 250px; gap: 6px; }
-   .leftDeck, .centerDeck, .rightDeck { gap: 6px; }
-   .leftDeck { grid-template-rows: 210px minmax(0,1fr); }
-   .rightDeck { grid-template-rows: 170px 145px minmax(0, 1fr); }
-   .panel { padding: 8px; }
-   .actionGrid { gap: 6px; }
-   .actionBtn { padding: 8px 9px; border-radius: 10px; }
-   .actionIcon { font-size: 15px; margin-bottom: 4px; }
-   .actionTitle { font-size: 12px; }
-   .actionDesc { font-size: 9.4px; }
-   .actionCost { font-size: 9px; }
-   .playersGrid { max-width: 620px; }
-   .player { padding: 8px; border-radius: 12px; }
-   .statLine, .moneyRow { padding: 4px 0; font-size: 10px; }
-   .log { padding: 4px 6px; margin-bottom: 4px; }
-  }
-
-  @media (max-width: 900px) {
-   html, body { overflow: auto; }
-   .appShell { height: auto; min-height: 100vh; grid-template-rows: auto auto auto; }
-   .topCommand, .dashboard, .bottomTicker { grid-template-columns: 1fr; }
-   .leftDeck, .centerDeck, .rightDeck { grid-template-rows: auto; }
-   .sectorGrid, .playersGrid { height: auto; grid-template-columns: 1fr; grid-template-rows: auto; }
-   .actionGrid { height: auto; grid-template-columns: 1fr 1fr; }
-   .actionBtn { min-height: 54px; }
-   .player { min-height: 160px; }
-  }
-
-
-  /* SAFE PREMIUM MARKET SKIN - sadece görünüm, çalışan ID yapısına dokunmaz */
-  :root {
    --bg: #080d18;
    --panel: rgba(15, 23, 42, 0.94);
    --panel2: rgba(17, 24, 39, 0.90);
@@ -525,131 +24,411 @@
   }
 
   html, body {
+   margin: 0;
+   width: 100%;
+   height: 100%;
+   overflow: hidden;
    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+   color: var(--text);
    background:
     radial-gradient(circle at 12% 7%, rgba(34, 197, 94, .11), transparent 28%),
-    radial-gradient(circle at 86% 8%, rgba(56, 189, 248, .10), transparent 26%),
-    radial-gradient(circle at 50% 100%, rgba(245, 158, 11, .055), transparent 38%),
-    linear-gradient(135deg, #070b14 0%, #0b1220 46%, #111827 100%);
-   color: var(--text);
+    radial-gradient(circle at 86% 9%, rgba(56, 189, 248, .10), transparent 24%),
+    linear-gradient(135deg, #080d18 0%, #0f172a 48%, #111827 100%);
   }
 
   body::before {
-   background:
-    linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.024) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(255,255,255,.035), transparent 32%, rgba(0,0,0,.24));
-   background-size: 42px 42px, 42px 42px, 100% 100%;
-   opacity: .62;
-  }
-
-  #coinRain { opacity: .08; filter: saturate(.6); }
-  .bgCoin {
-   background: radial-gradient(circle at 30% 30%, #e0f2fe, #38bdf8 42%, #0f172a 100%);
-   color: #e5edf7;
-   box-shadow: 0 0 18px rgba(56, 189, 248, .22);
-  }
-
-  .brandBox, .topBox, .status, .panel, .roleModal .modalBox, .decisionModal .modalBox, .boardHeader, .tickerBox {
-   background: linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(8, 13, 24, .96));
-   border: 1px solid rgba(148, 163, 184, .18);
-   box-shadow: 0 18px 44px rgba(2, 6, 23, .42), inset 0 1px 0 rgba(255,255,255,.035);
-   backdrop-filter: blur(12px);
-  }
-
-  .brandBox { position: relative; overflow: hidden; }
-  .brandBox::after {
    content: "";
-   position: absolute;
-   left: 12px;
-   right: 12px;
-   bottom: 0;
-   height: 2px;
-   background: linear-gradient(90deg, var(--green2), var(--blue), transparent);
-   opacity: .86;
+   position: fixed;
+   inset: 0;
+   pointer-events: none;
+   background:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+   background-size: 42px 42px;
+   opacity: .55;
+   z-index: 0;
   }
+
+  button, input, select { font-family: inherit; }
+
+  #coinRain {
+   position: fixed;
+   inset: 0;
+   pointer-events: none;
+   overflow: hidden;
+   z-index: 1;
+   opacity: .12;
+  }
+
+  .bgCoin { display: none; }
+
+  .appShell {
+   position: relative;
+   z-index: 2;
+   height: 100vh;
+   width: 100vw;
+   padding: 7px;
+   display: grid;
+   grid-template-rows: 62px minmax(0, 1fr) 24px;
+   gap: 7px;
+  }
+
+  .topCommand {
+   display: grid;
+   grid-template-columns: 220px minmax(0, 1fr) 210px 190px 112px;
+   gap: 7px;
+   min-height: 0;
+  }
+
+  .brandBox, .topBox, .status, .panel, .roleModal .modalBox, .decisionModal .modalBox {
+   background: linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(8, 13, 24, .96));
+   border: 1px solid var(--line);
+   border-radius: 14px;
+   box-shadow: 0 12px 30px rgba(2,6,23,.34), inset 0 1px 0 rgba(255,255,255,.035);
+   backdrop-filter: blur(10px);
+  }
+
+  .brandBox {
+   padding: 8px 11px;
+   display: flex;
+   align-items: center;
+  }
+
+  .brandTop { display: flex; align-items: center; gap: 9px; min-width: 0; }
 
   .logoMark {
+   width: 36px;
+   height: 36px;
+   border-radius: 11px;
+   display: grid;
+   place-items: center;
+   font-weight: 1000;
    color: #07111f;
    background: linear-gradient(135deg, #34d399, #38bdf8);
-   box-shadow: 0 0 22px rgba(56, 189, 248, .18);
-   border-radius: 12px;
+   box-shadow: 0 0 18px rgba(56, 189, 248, .18);
+   flex: 0 0 auto;
   }
 
   h1 {
+   font-size: 20px;
+   margin: 0;
+   letter-spacing: 1.6px;
    color: #f8fafc;
-   letter-spacing: 1.8px;
-   text-shadow: 0 0 18px rgba(56, 189, 248, .14);
+   line-height: 1;
   }
 
-  .subtitle, .panelHint { color: var(--muted); }
-  .topLabel, .panelTitle, .moneyBoardTitle, .statsBox h3 { color: var(--blue); }
+  .subtitle {
+   font-size: 10px;
+   color: var(--muted);
+   margin-top: 5px;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .topBox { padding: 8px 10px; min-width: 0; }
+  .topLabel { font-size: 10px; color: var(--muted); font-weight: 900; letter-spacing: .8px; text-transform: uppercase; }
+  .topValue { margin-top: 4px; font-size: 15px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc; }
   #marketBox { color: var(--green2); }
-  #roundBox { color: #f8fafc; }
-  .status { color: var(--green2); }
 
-  input {
-   background: rgba(15, 23, 42, .86);
-   border: 1px solid rgba(148, 163, 184, .22);
-   color: var(--text);
-   border-radius: 12px;
+  .status {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 8px;
+   color: var(--blue);
+   font-size: 11px;
+   font-weight: 1000;
+   text-align: center;
+   overflow: hidden;
   }
 
-  input:focus {
-   border-color: rgba(56, 189, 248, .58);
-   box-shadow: 0 0 0 3px rgba(56, 189, 248, .08);
+  .profileQuick {
+   display: grid;
+   grid-template-columns: 1fr 1fr 92px;
+   gap: 6px;
+   align-items: center;
+  }
+
+  input, select {
+   width: 100%;
+   min-width: 0;
+   border: 1px solid rgba(148,163,184,.22);
+   border-radius: 10px;
+   background: rgba(255,255,255,.045);
+   color: var(--text);
+   outline: none;
+   padding: 9px 8px;
+   font-size: 12px;
+   font-weight: 800;
+  }
+
+  option {
+   background: #0f172a;
+   color: #e5edf7;
+  }
+
+  input:focus, select:focus {
+   border-color: rgba(56,189,248,.55);
+   box-shadow: 0 0 0 3px rgba(56,189,248,.08);
   }
 
   .saveName {
+   height: 36px;
+   border: none;
+   border-radius: 10px;
+   cursor: pointer;
+   font-weight: 1000;
+   font-size: 11px;
    color: #07111f;
    background: linear-gradient(135deg, #34d399, #38bdf8);
-   box-shadow: 0 0 18px rgba(56, 189, 248, .14);
+   box-shadow: 0 0 18px rgba(56,189,248,.14);
   }
 
-  .sectorCard, .kpi, .player, .moneyRow, .statLine, .myLine {
+  .dashboard {
+   min-height: 0;
+   display: grid;
+   grid-template-columns: minmax(640px, 710px) minmax(460px, 1fr) 300px;
+   gap: 8px;
+  }
+
+  .leftDeck, .centerDeck, .rightDeck {
+   min-height: 0;
+   display: grid;
+   gap: 8px;
+  }
+
+  .leftDeck { grid-template-rows: 230px minmax(0, 1fr); }
+  .centerDeck { grid-template-rows: 58px minmax(0, 1fr) 54px; }
+  .rightDeck { grid-template-rows: 190px 155px minmax(0, 1fr); }
+
+  .panel {
+   padding: 9px;
+   min-height: 0;
+   overflow: hidden;
+  }
+
+  .panelHead {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 8px;
+   margin-bottom: 7px;
+  }
+
+  .panelTitle {
+   color: #f8fafc;
+   font-size: 11px;
+   font-weight: 1000;
+   letter-spacing: .8px;
+   text-transform: uppercase;
+  }
+
+  .panelHint {
+   color: var(--muted);
+   font-size: 10px;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .sectorGrid {
+   display: grid;
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+   grid-template-rows: repeat(3, minmax(0, 1fr));
+   gap: 7px;
+   height: calc(100% - 24px);
+  }
+
+  .sectorCard {
+   padding: 9px 10px;
+   border-radius: 13px;
    background: rgba(255,255,255,.035);
-   border-color: rgba(148, 163, 184, .14);
+   border: 1px solid rgba(148,163,184,.14);
+   overflow: hidden;
   }
 
   .sectorCard.ownedByMe {
-   border-color: rgba(52, 211, 153, .65);
-   box-shadow: 0 0 16px rgba(52, 211, 153, .10);
+   border-color: rgba(52,211,153,.65);
+   box-shadow: 0 0 16px rgba(52,211,153,.1);
   }
 
-  .sectorTitle { color: #f8fafc; }
-  .sectorOwner { color: var(--green2); }
+  .sectorTop { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .sectorIcon {
+   width: 25px;
+   height: 25px;
+   display: grid;
+   place-items: center;
+   border-radius: 9px;
+   background: rgba(255,255,255,.06);
+   font-size: 16px;
+   flex: 0 0 auto;
+  }
+
+  .sectorInfo { min-width: 0; }
+  .sectorTitle {
+   color: #f8fafc;
+   font-size: 12.5px;
+   font-weight: 1000;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   line-height: 1.1;
+  }
+  .sectorOwner {
+   margin-top: 3px;
+   color: var(--green2);
+   font-size: 10px;
+   font-weight: 900;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .sectorDesc {
+   display: none;
+  }
+  .sectorStability {
+   display: flex;
+   justify-content: space-between;
+   margin-top: 6px;
+   font-size: 9px;
+   color: var(--muted);
+   font-weight: 900;
+  }
+  .sectorBar {
+   height: 4px;
+   background: rgba(255,255,255,.08);
+   border-radius: 999px;
+   overflow: hidden;
+   margin-top: 3px;
+  }
+  .sectorBar div {
+   height: 100%;
+   background: linear-gradient(90deg, var(--green2), var(--blue));
+  }
+  .sectorActions {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 5px;
+   margin-top: 6px;
+  }
+  .sectorActions button {
+   height: 24px;
+   border: 1px solid rgba(148,163,184,.18);
+   border-radius: 8px;
+   background: rgba(255,255,255,.055);
+   color: #e5edf7;
+   font-size: 9px;
+   font-weight: 1000;
+   cursor: pointer;
+  }
+  .sectorActions button:first-child {
+   background: linear-gradient(135deg, #0f766e, #134e4a);
+  }
+  .sectorActions button:last-child {
+   background: linear-gradient(135deg, #7f1d1d, #111827);
+  }
+  .sectorActions button:disabled {
+   opacity: .35;
+   cursor: not-allowed;
+  }
+
+  .actionGrid {
+   height: calc(100% - 24px);
+   display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   grid-auto-rows: minmax(50px, 1fr);
+   gap: 7px;
+   align-content: stretch;
+  }
 
   .actionBtn {
+   position: relative;
+   min-height: 0;
+   border: 1px solid rgba(148,163,184,.15);
+   border-radius: 12px;
+   cursor: pointer;
+   overflow: hidden;
+   color: white;
+   text-align: left;
+   padding: 8px 9px;
+   transition: .12s;
    display: grid;
-   grid-template-columns: 38px minmax(0, 1fr);
-   grid-template-rows: auto auto auto;
-   column-gap: 11px;
+   grid-template-columns: 30px minmax(0, 1fr);
+   grid-template-rows: auto auto;
+   column-gap: 8px;
    align-content: center;
    background: linear-gradient(135deg, #1e293b, #0f172a);
-   border: 1px solid rgba(148, 163, 184, .15);
-   box-shadow: 0 8px 18px rgba(2, 6, 23, .25), inset 0 1px 0 rgba(255,255,255,.04);
+   box-shadow: 0 8px 18px rgba(2,6,23,.25), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  .actionBtn::before {
+   content: "";
+   position: absolute;
+   inset: 0;
+   background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.58));
+   z-index: 0;
   }
 
   .actionBtn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  .actionBtn:active { transform: scale(.98); }
+  .actionBtn.cooling { cursor: not-allowed; filter: grayscale(.35) brightness(.70); }
+
   .actionIcon {
    position: relative;
    z-index: 2;
-   grid-row: 1 / 4;
-   width: 34px;
-   height: 34px;
+   grid-row: 1 / 3;
+   width: 28px;
+   height: 28px;
    display: grid;
    place-items: center;
    border-radius: 9px;
    background: rgba(255,255,255,.07);
    border: 1px solid rgba(255,255,255,.08);
-   font-size: 14px;
+   font-size: 15px;
    align-self: center;
   }
 
-  .actionTitle, .actionDesc, .actionCost { grid-column: 2; }
-  .actionTitle { color: #f8fafc; letter-spacing: .1px; font-size: 14px; }
-  .actionDesc { color: #cbd5e1; opacity: .92; font-size: 11.5px; }
-  .actionCost { color: var(--blue); font-size: 10.5px; }
+  .actionTitle, .actionDesc, .actionCost {
+   position: relative;
+   z-index: 2;
+   grid-column: 2;
+   display: block;
+  }
+
+  .actionTitle {
+   font-size: 11.5px;
+   font-weight: 1000;
+   line-height: 1.05;
+   color: #f8fafc;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .actionDesc { display: none !important; }
+
+  .actionCost {
+   margin-top: 4px;
+   color: var(--blue);
+   font-size: 9.4px;
+   font-weight: 900;
+   line-height: 1;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .cooldownFill {
+   position: absolute;
+   left: 0;
+   bottom: 0;
+   height: 4px;
+   width: 0%;
+   background: linear-gradient(90deg, var(--gold), var(--green2));
+   box-shadow: 0 0 10px var(--gold);
+   z-index: 3;
+  }
 
   .mine { background: linear-gradient(135deg, #0f766e, #134e4a); }
   .greed { background: linear-gradient(135deg, #2563eb, #1e3a8a); }
@@ -661,280 +440,93 @@
   .rug { background: linear-gradient(135deg, #dc2626, #7f1d1d); }
   .shield { background: linear-gradient(135deg, #10b981, #065f46); }
   .riskScan { background: linear-gradient(135deg, #38bdf8, #1d4ed8); }
-  .vault { background: linear-gradient(135deg, #64748b, #334155); }
   .insurance { background: linear-gradient(135deg, #22c55e, #166534); }
-  .sector { background: linear-gradient(135deg, #0891b2, #164e63); }
-  .develop { background: linear-gradient(135deg, #475569, #1e293b); }
   .leverage { background: linear-gradient(135deg, #f59e0b, #7c2d12); }
   .reputation { background: linear-gradient(135deg, #0ea5e9, #075985); }
-  .blackMarket { background: linear-gradient(135deg, #111827, #374151); }
-  .useItem { background: linear-gradient(135deg, #7c3aed, #312e81); }
-  .evadeRegulator { background: linear-gradient(135deg, #334155, #0f172a); }
   .rolePower { background: linear-gradient(135deg, #8b5cf6, #4338ca); }
-
-  .opPanel {
-   grid-column: span 2;
-   display: grid;
-   grid-template-columns: 1fr 1fr;
-   gap: 10px;
-   padding: 12px;
-   border-radius: 14px;
-   background: linear-gradient(135deg, rgba(14, 24, 43, .96), rgba(10, 18, 33, .96));
-   border: 1px solid rgba(56,189,248,.20);
-   box-shadow: inset 0 0 0 1px rgba(255,255,255,.03), 0 10px 24px rgba(0,0,0,.24);
-  }
-  .opPanelHead {
-   grid-column: span 2;
-   display: flex;
-   align-items: center;
-   justify-content: space-between;
-   gap: 8px;
-  }
-  .opPanelTitle { color: #f8fafc; font-size: 15px; font-weight: 1000; }
-  .opPanelDesc { color: #94a3b8; font-size: 11px; }
-  .opField {
-   grid-column: span 2;
-   width: 100%;
-   border: 1px solid rgba(148,163,184,.22);
-   border-radius: 10px;
-   background: rgba(255,255,255,.04);
-   color: #e5edf7;
-   padding: 11px 12px;
-   font-size: 12px;
-   font-weight: 800;
-  }
-  .opMiniBtn {
-   border: 1px solid rgba(148,163,184,.18);
-   border-radius: 11px;
-   padding: 11px 10px;
-   font-size: 12px;
-   font-weight: 1000;
-   cursor: pointer;
-   color: #f8fafc;
-   background: linear-gradient(135deg, #0f766e, #134e4a);
-  }
-  .opMiniBtn.alt {
-   background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
-  }
-  .opNote {
-   grid-column: span 2;
-   color: #f59e0b;
-   font-size: 11px;
-   font-weight: 800;
-   line-height: 1.35;
-  }
-
-  .player {
-   background: linear-gradient(180deg, rgba(30, 41, 59, .76), rgba(15, 23, 42, .92));
-   box-shadow: 0 10px 24px rgba(2, 6, 23, .30), inset 0 1px 0 rgba(255,255,255,.035);
-  }
-
-  .player.selfCard {
-   border-color: rgba(52, 211, 153, .65);
-   box-shadow: 0 0 0 1px rgba(52, 211, 153, .14), 0 12px 26px rgba(2,6,23,.32);
-  }
-
-  .player.leaderCard {
-   border-color: rgba(245, 158, 11, .78);
-   box-shadow: 0 0 0 1px rgba(245, 158, 11, .16), 0 0 22px rgba(245, 158, 11, .10);
-  }
-
-  .player.secondCard {
-   border-color: rgba(56, 189, 248, .60);
-   box-shadow: 0 0 0 1px rgba(56, 189, 248, .12), 0 0 20px rgba(56, 189, 248, .08);
-  }
-
-  .companyName { color: #f8fafc; }
-  .roleLine { color: var(--muted); }
-  .score { color: var(--green2); }
-  .subMoney { color: #cbd5e1; }
-  .barFill { background: linear-gradient(90deg, var(--green2), var(--blue), var(--gold)); }
-  .heatFill { background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444); }
-  .repFill { background: linear-gradient(90deg, #64748b, #38bdf8, #34d399); }
-  .badge { background: rgba(255,255,255,.055); color: #cbd5e1; border-color: rgba(148, 163, 184, .16); }
-
-  .moneyBoardTitle { text-transform: uppercase; letter-spacing: .8px; }
-  .leaderRow { background: rgba(245, 158, 11, .075); }
-  .log { background: rgba(255,255,255,.035); border-left-color: var(--blue); color: #dbeafe; }
-  .log.important { background: rgba(239, 68, 68, .08); border-left-color: var(--red); }
-  .warning { color: var(--gold); }
-  .winner { color: #f8fafc; text-shadow: 0 0 18px rgba(52, 211, 153, .20); }
-
-  .roleCard, .decisionChoice {
-   background: linear-gradient(135deg, #172033, #111827);
-   border: 1px solid rgba(148, 163, 184, .18);
-   box-shadow: 0 14px 30px rgba(2, 6, 23, .36);
-  }
-
-  .toast {
-   background: rgba(15, 23, 42, .96);
-   color: var(--green2);
-   border: 1px solid rgba(148, 163, 184, .22);
-   box-shadow: 0 12px 28px rgba(2, 6, 23, .36);
-  }
-
- 
-  /* FINAL RELEASE UI POLISH - okunurluk kilidi */
-  .appShell {
-   padding: 8px;
-   grid-template-rows: 68px minmax(0, 1fr) 24px;
-   gap: 7px;
-  }
-
-  .dashboard {
-   grid-template-columns: minmax(650px, 720px) minmax(480px, 560px) 300px;
-   justify-content: center;
-   gap: 10px;
-  }
-
-  .leftDeck {
-   grid-template-rows: 230px minmax(0, 1fr);
-   gap: 9px;
-  }
-
-  .centerDeck {
-   grid-template-rows: 60px minmax(0, 1fr) 58px;
-   gap: 8px;
-  }
-
-  .rightDeck {
-   grid-template-rows: 190px 155px minmax(0, 1fr);
-   gap: 8px;
-  }
-
-  .panel {
-   padding: 9px;
-  }
-
-  .panelHead {
-   margin-bottom: 7px;
-  }
-
-  .sectorGrid {
-   grid-template-columns: repeat(2, minmax(0, 1fr));
-   grid-template-rows: repeat(3, minmax(0, 1fr));
-   gap: 8px;
-   height: calc(100% - 24px);
-  }
-
-  .sectorCard {
-   padding: 11px 12px;
-   border-radius: 13px;
-  }
-
-  .sectorIcon {
-   font-size: 20px;
-   width: 24px;
-  }
-
-  .sectorTitle {
-   font-size: 14px;
-   line-height: 1.1;
-  }
-
-  .sectorOwner {
-   font-size: 11px;
-   margin-top: 6px;
-  }
-
-  .actionGrid {
-   height: calc(100% - 24px);
-   display: grid;
-   grid-template-columns: repeat(3, minmax(0, 1fr));
-   grid-auto-rows: minmax(56px, 1fr);
-   gap: 8px;
-   align-content: stretch;
-  }
-
-  .actionBtn {
-   display: grid;
-   grid-template-columns: 32px minmax(0, 1fr);
-   grid-template-rows: auto auto;
-   column-gap: 9px;
-   align-content: center;
-   padding: 9px 10px;
-   min-height: 0;
-   border-radius: 12px;
-  }
-
-  .actionIcon {
-   grid-row: 1 / 3;
-   width: 30px;
-   height: 30px;
-   font-size: 17px;
-   margin: 0;
-   align-self: center;
-  }
-
-  .actionTitle {
-   grid-column: 2;
-   font-size: 13px;
-   line-height: 1.05;
-   color: #f8fafc;
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
-  }
-
-  .actionDesc {
-   display: none !important;
-  }
-
-  .actionCost {
-   grid-column: 2;
-   margin-top: 4px;
-   font-size: 10.5px;
-   line-height: 1;
-   color: #38bdf8;
-   white-space: nowrap;
-   overflow: hidden;
-   text-overflow: ellipsis;
-  }
 
   .opPanel {
    grid-column: 1 / -1;
    grid-row: span 2;
    display: grid;
-   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 138px 138px;
-   grid-template-rows: auto 36px auto;
-   gap: 7px;
-   padding: 10px;
-   min-height: 105px;
+   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 118px 118px;
+   grid-template-rows: auto 32px auto;
+   gap: 6px;
+   padding: 8px;
+   min-height: 90px;
    border-radius: 14px;
+   background: linear-gradient(135deg, rgba(14,24,43,.96), rgba(10,18,33,.96));
+   border: 1px solid rgba(56,189,248,.2);
+   box-shadow: inset 0 0 0 1px rgba(255,255,255,.03), 0 10px 24px rgba(0,0,0,.24);
   }
 
   .opPanelHead {
    grid-column: 1 / -1;
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 8px;
   }
-
-  .opPanelTitle {
-   font-size: 14px;
-  }
-
-  .opPanelDesc {
-   font-size: 10px;
-  }
-
+  .opPanelTitle { color: #f8fafc; font-size: 12px; font-weight: 1000; }
+  .opPanelDesc { color: var(--muted); font-size: 9px; }
   .opField {
-   grid-column: auto;
-   min-width: 0;
-   height: 36px;
-   padding: 8px 9px;
-   font-size: 11px;
+   height: 32px;
+   padding: 6px 7px;
+   font-size: 9.5px;
+   border-radius: 9px;
   }
-
   .opMiniBtn {
-   height: 36px;
-   padding: 8px 8px;
-   font-size: 11px;
+   height: 32px;
+   border: 1px solid rgba(148,163,184,.18);
+   border-radius: 10px;
+   padding: 6px 6px;
+   font-size: 9.5px;
+   font-weight: 1000;
+   cursor: pointer;
+   color: #f8fafc;
+   background: linear-gradient(135deg, #0f766e, #134e4a);
    white-space: nowrap;
   }
-
+  .opMiniBtn.alt { background: linear-gradient(135deg, #7f1d1d, #111827); }
   .opNote {
    grid-column: 1 / -1;
-   font-size: 10px;
-   line-height: 1.25;
    color: #fbbf24;
+   font-size: 9px;
+   font-weight: 800;
+   line-height: 1.2;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .boardHeader {
+   display: grid;
+   grid-template-columns: repeat(5, 1fr);
+   gap: 6px;
+   min-height: 0;
+  }
+  .kpi {
+   min-width: 0;
+   border-radius: 12px;
+   background: rgba(255,255,255,.035);
+   border: 1px solid rgba(148,163,184,.14);
+   padding: 7px 8px;
+  }
+  .kpi span {
+   display: block;
+   color: var(--muted);
+   font-size: 8px;
+   font-weight: 1000;
+   text-transform: uppercase;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .kpi b {
+   display: block;
+   margin-top: 4px;
+   color: #f8fafc;
+   font-size: 10.5px;
    white-space: nowrap;
    overflow: hidden;
    text-overflow: ellipsis;
@@ -944,88 +536,141 @@
    height: 100%;
    display: grid;
    grid-template-columns: 1fr;
-   grid-auto-rows: minmax(118px, 128px);
-   gap: 8px;
-   max-width: 100%;
-   margin: 0;
+   grid-auto-rows: minmax(104px, 1fr);
+   gap: 7px;
    align-content: start;
   }
 
   .player {
-   padding: 9px 10px;
-   border-radius: 14px;
+   position: relative;
+   min-width: 0;
    min-height: 0;
+   padding: 8px;
+   border-radius: 14px;
+   background: linear-gradient(180deg, rgba(30,41,59,.76), rgba(15,23,42,.92));
+   border: 1px solid rgba(148,163,184,.14);
+   box-shadow: 0 10px 24px rgba(2,6,23,.30), inset 0 1px 0 rgba(255,255,255,.035);
+   overflow: hidden;
+  }
+
+  .player.selfCard {
+   border-color: rgba(52,211,153,.65);
+   box-shadow: 0 0 0 1px rgba(52,211,153,.14), 0 12px 26px rgba(2,6,23,.32);
+  }
+  .player.offlineCard { opacity: .58; filter: grayscale(.25); }
+  .player.leaderCard { border-color: rgba(245,158,11,.78); box-shadow: 0 0 0 1px rgba(245,158,11,.16), 0 0 22px rgba(245,158,11,.1); }
+  .player.secondCard { border-color: rgba(56,189,248,.60); box-shadow: 0 0 0 1px rgba(56,189,248,.12), 0 0 20px rgba(56,189,248,.08); }
+  .player.redHeat { box-shadow: 0 0 24px rgba(239,68,68,.22), inset 0 0 20px rgba(127,29,29,.12); }
+  .player.leverageOn::after {
+   content: "2x";
+   position: absolute;
+   right: 8px;
+   top: 8px;
+   color: #fff;
+   background: rgba(220,38,38,.92);
+   padding: 4px 7px;
+   border-radius: 999px;
+   font-size: 10px;
+   font-weight: 1000;
   }
 
   .playerHeader {
    display: flex;
    align-items: flex-start;
    justify-content: space-between;
-   gap: 8px;
+   gap: 7px;
   }
-
+  .playerIdentity { min-width: 0; }
   .playerName {
-   font-size: 14px;
+   font-size: 12px;
+   font-weight: 1000;
    line-height: 1.05;
-   min-width: 0;
    white-space: nowrap;
    overflow: hidden;
    text-overflow: ellipsis;
   }
+  .fireLeader { color: #fbbf24; }
+  .rgbRunner { color: #38bdf8; }
+  .normalName { color: #f8fafc; }
 
   .companyName {
-   font-size: 9.5px;
+   color: #94a3b8;
+   font-size: 8.5px;
    margin-top: 3px;
+   font-weight: 900;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   text-transform: uppercase;
+  }
+
+  .rankPill {
+   flex: 0 0 auto;
+   padding: 3px 6px;
+   border-radius: 999px;
+   background: rgba(255,255,255,.06);
+   border: 1px solid rgba(255,255,255,.08);
+   font-size: 9px;
+   font-weight: 1000;
+   color: #cbd5e1;
   }
 
   .badgeLine {
    display: flex;
-   gap: 4px;
    flex-wrap: nowrap;
+   gap: 4px;
    overflow: hidden;
    margin-top: 5px;
-   max-height: 18px;
+   max-height: 17px;
   }
-
   .badge {
-   font-size: 8.5px;
-   padding: 3px 5px;
+   display: inline-block;
    flex: 0 0 auto;
+   padding: 2px 4px;
+   border-radius: 999px;
+   background: rgba(255,255,255,.05);
+   border: 1px solid rgba(255,255,255,.08);
+   color: #cbd5e1;
+   font-size: 7.8px;
+   font-weight: 1000;
+   white-space: nowrap;
   }
+  .badge.good { color: #bbf7d0; border-color: rgba(34,197,94,.22); }
+  .badge.hot { color: #fecaca; border-color: rgba(239,68,68,.24); }
 
   .playerMoneyRow {
    display: flex;
    align-items: baseline;
    justify-content: space-between;
    gap: 8px;
-   margin-top: 6px;
+   margin-top: 5px;
   }
-
   .score {
-   margin: 0;
-   font-size: clamp(18px, 1.35vw, 22px);
+   color: var(--green2);
+   font-size: 17px;
+   font-weight: 1000;
    line-height: 1;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
   }
-
   .vaultText {
-   margin: 0;
-   font-size: 9px;
    color: #fbbf24;
-   flex: 0 0 auto;
+   font-size: 8.5px;
+   font-weight: 900;
+   white-space: nowrap;
   }
-
   .playerMetaRow {
    display: grid;
    grid-template-columns: 1fr auto auto;
-   gap: 8px;
+   gap: 6px;
    margin-top: 5px;
    color: #94a3b8;
-   font-size: 9.5px;
+   font-size: 8.5px;
    font-weight: 900;
    white-space: nowrap;
    overflow: hidden;
   }
-
   .playerMetaRow span {
    overflow: hidden;
    text-overflow: ellipsis;
@@ -1034,168 +679,355 @@
   .compactBars {
    display: grid;
    grid-template-columns: 1.4fr 1fr 1fr;
-   gap: 6px;
-   margin-top: 6px;
+   gap: 5px;
+   margin-top: 5px;
   }
-
-  .barLine.compact .barLabel {
-   font-size: 8.5px;
+  .barLabel {
+   display: flex;
+   justify-content: space-between;
+   color: #94a3b8;
+   font-size: 8px;
+   font-weight: 1000;
   }
-
-  .barLine.compact .barWrap {
+  .barWrap {
    height: 5px;
+   background: rgba(255,255,255,.08);
+   border-radius: 999px;
+   overflow: hidden;
    margin-top: 2px;
   }
+  .barFill { height: 100%; background: linear-gradient(90deg, var(--green2), var(--blue), var(--gold)); }
+  .heatFill { background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444); }
+  .repFill { background: linear-gradient(90deg, #64748b, #38bdf8, #34d399); }
 
   .gain {
-   right: 10px;
-   bottom: 7px;
-   font-size: 11px;
-  }
-
-  .bottomTicker {
+   position: absolute;
+   right: 8px;
+   bottom: 6px;
+   color: #f8fafc;
    font-size: 10px;
+   font-weight: 1000;
   }
 
-  .tickerBox {
-   min-width: 0;
+  .warning {
+   display: flex;
+   align-items: center;
+   padding: 8px 10px;
+   border-radius: 14px;
+   background: rgba(245,158,11,.08);
+   border: 1px solid rgba(245,158,11,.16);
+   color: #fde68a;
+   font-size: 11px;
+   font-weight: 900;
+   white-space: nowrap;
    overflow: hidden;
    text-overflow: ellipsis;
   }
 
-  @media (max-width: 1500px), (max-height: 760px) {
-   .appShell {
-    padding: 6px;
-    grid-template-rows: 60px minmax(0, 1fr) 22px;
-    gap: 6px;
-   }
-
-   .topCommand {
-    grid-template-columns: 185px minmax(0, 1fr) 165px 155px 100px;
-    gap: 6px;
-   }
-
-   .dashboard {
-    grid-template-columns: minmax(540px, 590px) minmax(410px, 1fr) 255px;
-    gap: 6px;
-   }
-
-   .leftDeck {
-    grid-template-rows: 200px minmax(0, 1fr);
-    gap: 6px;
-   }
-
-   .rightDeck {
-    grid-template-rows: 160px 140px minmax(0, 1fr);
-    gap: 6px;
-   }
-
-   .centerDeck {
-    grid-template-rows: 54px minmax(0, 1fr) 50px;
-    gap: 6px;
-   }
-
-   .sectorGrid {
-    gap: 6px;
-   }
-
-   .sectorCard {
-    padding: 9px 10px;
-   }
-
-   .sectorTitle {
-    font-size: 12.5px;
-   }
-
-   .sectorOwner {
-    font-size: 10px;
-   }
-
-   .actionGrid {
-    gap: 6px;
-    grid-auto-rows: minmax(50px, 1fr);
-   }
-
-   .actionBtn {
-    grid-template-columns: 28px minmax(0, 1fr);
-    padding: 7px 8px;
-    column-gap: 7px;
-    border-radius: 10px;
-   }
-
-   .actionIcon {
-    width: 26px;
-    height: 26px;
-    font-size: 15px;
-   }
-
-   .actionTitle {
-    font-size: 11.2px;
-   }
-
-   .actionCost {
-    font-size: 9.2px;
-   }
-
-   .opPanel {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 116px 116px;
-    min-height: 92px;
-    padding: 8px;
-    gap: 6px;
-   }
-
-   .opField,
-   .opMiniBtn {
-    height: 32px;
-    font-size: 9.5px;
-    padding: 6px 7px;
-   }
-
-   .opPanelTitle {
-    font-size: 12px;
-   }
-
-   .opPanelDesc,
-   .opNote {
-    font-size: 9px;
-   }
-
-   .playersGrid {
-    grid-auto-rows: minmax(104px, 116px);
-   }
-
-   .player {
-    padding: 8px;
-   }
-
-   .playerName {
-    font-size: 12.5px;
-   }
-
-   .companyName {
-    font-size: 8.5px;
-   }
-
-   .score {
-    font-size: 17px;
-   }
-
-   .badge {
-    font-size: 7.8px;
-    padding: 2px 4px;
-   }
-
-   .playerMetaRow {
-    font-size: 8.5px;
-    gap: 5px;
-   }
-
-   .compactBars {
-    gap: 4px;
-    margin-top: 4px;
-   }
+  .winner {
+   position: absolute;
+   left: 50%;
+   top: 50%;
+   transform: translate(-50%, -50%);
+   z-index: 20;
+   color: #f8fafc;
+   font-size: 24px;
+   font-weight: 1000;
+   text-shadow: 0 0 18px rgba(52,211,153,.22);
+   pointer-events: none;
   }
 
+  .myBig {
+   margin-top: 6px;
+   color: #f8fafc;
+   font-size: 16px;
+   font-weight: 1000;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .mySub {
+   color: var(--muted);
+   font-size: 11px;
+   margin-top: 4px;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .myGrid {
+   margin-top: 10px;
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 6px;
+  }
+  .myGrid div {
+   background: rgba(255,255,255,.04);
+   border: 1px solid rgba(148,163,184,.14);
+   border-radius: 10px;
+   padding: 7px;
+   min-width: 0;
+  }
+  .myGrid span {
+   display: block;
+   color: var(--muted);
+   font-size: 9px;
+   font-weight: 1000;
+   text-transform: uppercase;
+  }
+  .myGrid b {
+   display: block;
+   margin-top: 4px;
+   color: #f8fafc;
+   font-size: 11px;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .moneyRow, .statLine {
+   display: flex;
+   justify-content: space-between;
+   gap: 8px;
+   padding: 5px 0;
+   border-bottom: 1px solid rgba(255,255,255,.06);
+   font-size: 11px;
+   color: #cbd5e1;
+  }
+  .moneyRow span, .statLine span {
+   min-width: 0;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+  }
+  .moneyRow strong, .statLine b {
+   color: #f8fafc;
+   flex: 0 0 auto;
+  }
+  .leaderRow {
+   background: rgba(245,158,11,.075);
+   border-radius: 9px;
+   padding: 5px 6px;
+  }
+
+  .logsPanel { overflow: hidden; }
+  #logs {
+   height: calc(100% - 23px);
+   overflow: hidden;
+  }
+  .log {
+   background: rgba(255,255,255,.035);
+   border-left: 3px solid var(--blue);
+   color: #dbeafe;
+   font-size: 10px;
+   padding: 5px 6px;
+   border-radius: 8px;
+   margin-bottom: 5px;
+   line-height: 1.25;
+  }
+  .log.important {
+   background: rgba(239,68,68,.08);
+   border-left-color: var(--red);
+  }
+
+  .bottomTicker {
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) auto;
+   gap: 8px;
+   min-height: 0;
+  }
+  .tickerBox {
+   background: rgba(15,23,42,.86);
+   border: 1px solid rgba(148,163,184,.14);
+   border-radius: 10px;
+   padding: 5px 9px;
+   color: #94a3b8;
+   font-size: 10px;
+   font-weight: 900;
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+  }
+  #statsBox {
+   display: flex;
+   gap: 14px;
+   align-items: center;
+  }
+
+  .roleModal, .decisionModal {
+   position: fixed;
+   inset: 0;
+   z-index: 100000;
+   display: none;
+   align-items: center;
+   justify-content: center;
+   background: rgba(0,0,0,.74);
+   backdrop-filter: blur(8px);
+   padding: 18px;
+  }
+  .roleModal.show, .decisionModal.show { display: flex; }
+  .modalBox {
+   width: min(920px, 96vw);
+   max-height: 92vh;
+   overflow: auto;
+   padding: 22px;
+   border-radius: 22px;
+  }
+  .modalBox h2 {
+   margin: 0;
+   color: #f8fafc;
+   font-size: 30px;
+   text-align: center;
+  }
+  .modalBox p {
+   color: #cbd5e1;
+   text-align: center;
+  }
+  .roleGrid, .decisionOptions {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+   gap: 12px;
+   margin-top: 14px;
+  }
+  .roleCard, .decisionChoice {
+   border: 1px solid rgba(148,163,184,.18);
+   border-radius: 18px;
+   cursor: pointer;
+   text-align: left;
+   padding: 15px;
+   color: white;
+   min-height: 145px;
+   background: linear-gradient(135deg, #172033, #111827);
+   box-shadow: 0 14px 30px rgba(2,6,23,.36);
+   transition: .14s;
+  }
+  .roleCard:hover, .decisionChoice:hover { transform: translateY(-3px); filter: brightness(1.12); }
+  .roleCard strong, .decisionChoice strong {
+   display: block;
+   font-size: 19px;
+   margin-bottom: 10px;
+   color: #f8fafc;
+  }
+  .roleCard span, .decisionChoice span {
+   color: #cbd5e1;
+   line-height: 1.35;
+   font-size: 13px;
+   display: block;
+   margin-top: 6px;
+  }
+
+  .toast {
+   position: fixed;
+   left: 50%;
+   bottom: 18px;
+   transform: translateX(-50%);
+   z-index: 200000;
+   background: rgba(15,23,42,.96);
+   color: var(--green2);
+   border: 1px solid rgba(148,163,184,.22);
+   box-shadow: 0 12px 28px rgba(2,6,23,.36);
+   padding: 10px 14px;
+   border-radius: 999px;
+   font-size: 12px;
+   font-weight: 1000;
+   display: none;
+   max-width: 78vw;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .toast.show { display: block; animation: toastPop 2.1s ease-out forwards; }
+  @keyframes toastPop {
+   0% { opacity: 0; transform: translateX(-50%) translateY(16px); }
+   15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+   80% { opacity: 1; }
+   100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  }
+
+  .floating {
+   position: fixed;
+   pointer-events: none;
+   font-weight: 1000;
+   color: #fff700;
+   text-shadow: 0 0 8px #fff700;
+   animation: floatUp .85s ease-out forwards;
+   z-index: 9999;
+  }
+  @keyframes floatUp {
+   from { opacity: 1; transform: translateY(0) scale(1); }
+   to { opacity: 0; transform: translateY(-70px) scale(1.35); }
+  }
+  .particle {
+   position: fixed;
+   width: 7px;
+   height: 7px;
+   border-radius: 50%;
+   pointer-events: none;
+   z-index: 9998;
+   background: var(--gold);
+   box-shadow: 0 0 12px var(--gold);
+   animation: particlePop .6s ease-out forwards;
+  }
+  @keyframes particlePop {
+   to { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+  }
+
+  .roomFull {
+   color: white;
+   text-align: center;
+   margin-top: 120px;
+   font-family: Arial;
+  }
+
+  @media (max-width: 1200px), (max-height: 720px) {
+   .appShell { padding: 5px; grid-template-rows: 58px minmax(0, 1fr) 20px; gap: 5px; }
+   .topCommand { grid-template-columns: 180px minmax(0, 1fr) 150px 145px 92px; gap: 5px; }
+   h1 { font-size: 17px; }
+   .dashboard { grid-template-columns: minmax(520px, 580px) minmax(390px, 1fr) 250px; gap: 5px; }
+   .leftDeck { grid-template-rows: 190px minmax(0, 1fr); gap: 5px; }
+   .centerDeck { grid-template-rows: 50px minmax(0,1fr) 46px; gap: 5px; }
+   .rightDeck { grid-template-rows: 158px 132px minmax(0,1fr); gap: 5px; }
+   .panel { padding: 7px; }
+   .sectorGrid { gap: 5px; }
+   .sectorCard { padding: 7px 8px; }
+   .sectorTitle { font-size: 11px; }
+   .sectorOwner { font-size: 9px; }
+   .sectorActions button { height: 22px; font-size: 8px; }
+   .actionGrid { gap: 5px; grid-auto-rows: minmax(45px, 1fr); }
+   .actionBtn { grid-template-columns: 25px minmax(0, 1fr); column-gap: 6px; padding: 6px 7px; border-radius: 10px; }
+   .actionIcon { width: 23px; height: 23px; font-size: 13px; }
+   .actionTitle { font-size: 10px; }
+   .actionCost { font-size: 8.3px; }
+   .opPanel { grid-template-columns: minmax(0,1fr) minmax(0,1fr) 100px 100px; min-height: 80px; padding: 7px; gap: 5px; }
+   .opField, .opMiniBtn { height: 28px; font-size: 8.2px; padding: 5px 6px; }
+   .opPanelTitle { font-size: 10.5px; }
+   .opPanelDesc, .opNote { font-size: 8px; }
+   .playersGrid { grid-auto-rows: minmax(92px, 1fr); gap: 5px; }
+   .player { padding: 6px 7px; }
+   .playerName { font-size: 10.5px; }
+   .companyName { font-size: 7.5px; }
+   .badge { font-size: 6.8px; padding: 2px 3px; }
+   .score { font-size: 14px; }
+   .playerMetaRow { font-size: 7.5px; gap: 4px; }
+   .compactBars { gap: 4px; margin-top: 4px; }
+   .barLabel { font-size: 7px; }
+   .myBig { font-size: 13px; }
+   .myGrid { gap: 4px; margin-top: 7px; }
+   .myGrid div { padding: 5px; }
+   .log { font-size: 8.5px; padding: 4px 5px; margin-bottom: 4px; }
+  }
+
+  @media (max-width: 900px) {
+   html, body { overflow: auto; height: auto; }
+   .appShell { height: auto; min-height: 100vh; grid-template-rows: auto auto auto; }
+   .topCommand, .dashboard, .bottomTicker { grid-template-columns: 1fr; }
+   .leftDeck, .centerDeck, .rightDeck { grid-template-rows: auto; }
+   .sectorGrid, .playersGrid { height: auto; grid-template-columns: 1fr; grid-template-rows: auto; }
+   .actionGrid { height: auto; grid-template-columns: 1fr 1fr; }
+   .actionBtn { min-height: 54px; }
+   .opPanel { grid-template-columns: 1fr; }
+   .opPanelHead, .opNote { grid-column: 1; }
+   .player { min-height: 120px; }
+  }
  </style>
 </head>
 <body>
@@ -1205,7 +1037,7 @@
  <div id="roleModal" class="roleModal">
   <div class="modalBox">
    <h2>Rolünü Seç</h2>
-   <p>Rol sonradan değişmez. Şirket kaderini seçiyorsun, yani bu kez butonun gerçekten anlamı var.</p>
+   <p>Rol sonradan değişmez. Şirket kaderini seçiyorsun.</p>
    <div id="roleGrid" class="roleGrid"></div>
   </div>
  </div>
@@ -1225,7 +1057,7 @@
      <div class="logoMark">T</div>
      <div>
       <h1>TREEZCOIN</h1>
-      <div class="subtitle">CEO Market Command Center</div>
+      <div class="subtitle">Market Command Center</div>
      </div>
     </div>
    </section>
@@ -1242,11 +1074,11 @@
    </section>
 
    <section class="topBox">
-    <div class="topLabel">Masa / Final</div>
+    <div class="topLabel">Masa</div>
     <div id="roundBox" class="topValue">--:--</div>
    </section>
 
-   <div id="statusBox" class="status">Bağlanıyor...</div>
+   <div id="statusBox" class="status">BAĞLANIYOR</div>
   </header>
 
   <section class="dashboard">
@@ -1254,7 +1086,7 @@
     <section class="panel">
      <div class="panelHead">
       <div class="panelTitle">Piyasa Haritası</div>
-      <div class="panelHint">Sektör kontrolü</div>
+      <div class="panelHint">Sektörü seçerek al, rastgele değil</div>
      </div>
      <div id="sectorGrid" class="sectorGrid"></div>
     </section>
@@ -1262,40 +1094,39 @@
     <section class="panel actionPanel">
      <div class="panelHead">
       <div class="panelTitle">Yönetim Hamleleri</div>
-      <div class="panelHint">Ana hamleler</div>
+      <div class="panelHint">Ana ekonomi ve savaş butonları</div>
      </div>
+
      <div class="actionGrid">
-      <button class="actionBtn mine" onclick="sendAction('mine', event)"><span class="actionIcon">⛏️</span><span class="actionTitle">TREEZ Kaz</span><span class="actionDesc">Güvenli kazım yap.</span><span class="actionCost">Ana gelir</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn greed" onclick="sendAction('greed', event)"><span class="actionIcon">📈</span><span class="actionTitle">Katla</span><span class="actionDesc">Orta riskli büyüme.</span><span class="actionCost">Riskli</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn mega" onclick="sendAction('mega', event)"><span class="actionIcon">🚀</span><span class="actionTitle">Mega Pump</span><span class="actionDesc">Yüksek riskli hamle.</span><span class="actionCost">80K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)"><span class="actionIcon">🎰</span><span class="actionTitle">Jackpot</span><span class="actionDesc">%15 şans hamlesi.</span><span class="actionCost">180K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn steal" onclick="sendAction('steal', event)"><span class="actionIcon">🕵️</span><span class="actionTitle">Cüzdan Çal</span><span class="actionDesc">Rastgele hedef soy.</span><span class="actionCost">PvP</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn tax" onclick="sendAction('tax', event)"><span class="actionIcon">🏛️</span><span class="actionTitle">Lider Vergisi</span><span class="actionDesc">Liderden kes, dağıt.</span><span class="actionCost">Herkese bölüşür</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn throne" onclick="sendAction('throne', event)"><span class="actionIcon">👑</span><span class="actionTitle">Taht Soygunu</span><span class="actionDesc">Lideri hedef al.</span><span class="actionCost">Anti-lider</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn rug" onclick="sendAction('rug', event)"><span class="actionIcon">💣</span><span class="actionTitle">Rug Pull</span><span class="actionDesc">Masayı sars.</span><span class="actionCost">120K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn shield" onclick="sendAction('shield', event)"><span class="actionIcon">🛡️</span><span class="actionTitle">Kalkan</span><span class="actionDesc">Saldırıya karşı koru.</span><span class="actionCost">50K</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn riskScan" onclick="sendAction('riskScan', event)"><span class="actionIcon">📊</span><span class="actionTitle">Risk Analizi</span><span class="actionDesc">Ceza düşürür.</span><span class="actionCost">35K</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn insurance" onclick="sendAction('insurance', event)"><span class="actionIcon">🧾</span><span class="actionTitle">Sigorta</span><span class="actionDesc">Büyük kaybı yumuşat.</span><span class="actionCost">Koruma</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn sector" onclick="sendAction('sector', event)"><span class="actionIcon">🧭</span><span class="actionTitle">Sektör Al</span><span class="actionDesc">Market bölgesi kap.</span><span class="actionCost">Piyasa kontrolü</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn develop" onclick="sendAction('develop', event)"><span class="actionIcon">🏢</span><span class="actionTitle">Şirket Geliştir</span><span class="actionDesc">Şirket yolunu büyüt.</span><span class="actionCost">Strateji</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn leverage" onclick="sendAction('leverage', event)"><span class="actionIcon">⚡</span><span class="actionTitle">Kaldıraç</span><span class="actionDesc">2x risk aç.</span><span class="actionCost">250K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn reputation" onclick="sendAction('reputation', event)"><span class="actionIcon">🤝</span><span class="actionTitle">İtibar Yönet</span><span class="actionDesc">Isıyı düşür.</span><span class="actionCost">Para yak</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn evadeRegulator" onclick="sendAction('evadeRegulator', event)"><span class="actionIcon">🛂</span><span class="actionTitle">Reg. Atlat</span><span class="actionDesc">Baskıyı azalt.</span><span class="actionCost">Isı kontrol</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn rolePower" onclick="sendAction('rolePower', event)"><span class="actionIcon">💎</span><span class="actionTitle">Rol Gücü</span><span class="actionDesc">Role özel yetenek.</span><span class="actionCost">Uzun cooldown</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn mine" onclick="sendAction('mine', event)"><span class="actionIcon">⛏️</span><span class="actionTitle">TREEZ Kaz</span><span class="actionCost">Ana gelir</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn greed" onclick="sendAction('greed', event)"><span class="actionIcon">📈</span><span class="actionTitle">Katla</span><span class="actionCost">Orta risk</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn mega" onclick="sendAction('mega', event)"><span class="actionIcon">🚀</span><span class="actionTitle">Mega Pump</span><span class="actionCost">80K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)"><span class="actionIcon">🎰</span><span class="actionTitle">Jackpot</span><span class="actionCost">%15 / 180K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn shield" onclick="sendAction('shield', event)"><span class="actionIcon">🛡️</span><span class="actionTitle">Kalkan</span><span class="actionCost">50K</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn insurance" onclick="sendAction('insurance', event)"><span class="actionIcon">🧾</span><span class="actionTitle">Sigorta</span><span class="actionCost">Koruma</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn riskScan" onclick="sendAction('riskScan', event)"><span class="actionIcon">📊</span><span class="actionTitle">Risk Analizi</span><span class="actionCost">35K</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn reputation" onclick="sendAction('reputation', event)"><span class="actionIcon">🤝</span><span class="actionTitle">İtibar Yönet</span><span class="actionCost">Isı düşür</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn steal" onclick="sendAction('steal', event)"><span class="actionIcon">🕵️</span><span class="actionTitle">Cüzdan Çal</span><span class="actionCost">Hedef varsa seçili</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn tax" onclick="sendAction('tax', event)"><span class="actionIcon">🏛️</span><span class="actionTitle">Lider Vergisi</span><span class="actionCost">Herkese bölüşür</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn throne" onclick="sendAction('throne', event)"><span class="actionIcon">👑</span><span class="actionTitle">Taht Soygunu</span><span class="actionCost">Lider avı</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn rug" onclick="sendAction('rug', event)"><span class="actionIcon">💣</span><span class="actionTitle">Rug Pull</span><span class="actionCost">120K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn leverage" onclick="sendAction('leverage', event)"><span class="actionIcon">⚡</span><span class="actionTitle">Kaldıraç</span><span class="actionCost">2x / 250K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn rolePower" onclick="sendAction('rolePower', event)"><span class="actionIcon">💎</span><span class="actionTitle">Rol Gücü</span><span class="actionCost">Özel</span><span class="cooldownFill"></span></button>
+
       <div class="opPanel">
        <div class="opPanelHead">
         <div class="opPanelTitle">Hedef Operasyonu</div>
-        <div class="opPanelDesc">Şirket seç / sektöre zarar ver</div>
+        <div class="opPanelDesc">Şirketi veya sektörü bilerek hedefle</div>
        </div>
-       <select id="targetCompanySelect" class="opField">
-        <option value="leader">Lider şirket</option>
+       <select id="targetPlayerSelect" class="opField">
+        <option value="">Hedef şirket seç</option>
        </select>
        <select id="targetSectorSelect" class="opField">
-        <option value="">Sektör yükleniyor...</option>
+        <option value="">Hedef sektör seç</option>
        </select>
-       <button class="opMiniBtn" onclick="sendTargetAction('targetPressure', event)">Şirkete Baskı</button>
-       <button class="opMiniBtn alt" onclick="sendTargetAction('sectorDamage', event)">Sektöre Zarar Ver</button>
-       <div class="opNote">Dengeli sistem: Baskı para basmaz, hedefe zarar verir. Sabotaj sektör sahibini düşürür veya sektörü boşa çıkarır. Isı yükselir, regülatör riski artar.</div>
+       <button class="opMiniBtn" onclick="sendTargetAction('pressureCompany', event)">Şirkete Baskı</button>
+       <button class="opMiniBtn alt" onclick="sendTargetAction('damageSector', event)">Sektöre Zarar</button>
+       <div class="opNote">Sektör almak için haritadaki “Al” butonunu kullan. Artık rastgele sektör yok.</div>
       </div>
      </div>
     </section>
@@ -1304,16 +1135,16 @@
    <section class="centerDeck">
     <div class="boardHeader">
      <div class="kpi"><span>Lider</span><b id="kpiLeader">-</b></div>
-     <div class="kpi"><span>En Kirli</span><b id="kpiHeat">-</b></div>
-     <div class="kpi"><span>En İtibarlı</span><b id="kpiRep">-</b></div>
-     <div class="kpi"><span>Regülatör</span><b id="kpiReg">-</b></div>
-     <div class="kpi"><span>Final Krizi</span><b id="kpiCrisis">-</b></div>
+     <div class="kpi"><span>En Isı</span><b id="kpiHeat">-</b></div>
+     <div class="kpi"><span>İtibar</span><b id="kpiRep">-</b></div>
+     <div class="kpi"><span>Reg.</span><b id="kpiReg">-</b></div>
+     <div class="kpi"><span>Final</span><b id="kpiCrisis">-</b></div>
     </div>
 
     <section class="panel" style="position:relative;">
      <div class="panelHead">
       <div class="panelTitle">Şirketler Masası</div>
-      <div class="panelHint">Daha kompakt şirket görünümü</div>
+      <div class="panelHint">Tek oyuncu tek şirket, kopya yok</div>
      </div>
      <div id="winnerBox" class="winner"></div>
      <div id="players" class="playersGrid"></div>
@@ -1337,11 +1168,11 @@
 
   <footer class="bottomTicker">
    <div class="tickerBox" id="statsBox"></div>
-   <div class="tickerBox">TREEZ Kaz logda yok • Jackpot %15 • Kalkan 50K</div>
+   <div class="tickerBox">TREEZ Kaz logda yok • Jackpot %15 • Kalkan 50K • /wipe?key=1234 tam temizlik</div>
   </footer>
  </main>
 
  <script src="/socket.io/socket.io.js"></script>
- <script src="game.js?v=final-polish-1"></script>
+ <script src="game.js?v=full-fix-release-1"></script>
 </body>
 </html>
