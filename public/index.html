@@ -116,6 +116,17 @@
       font-size: 17px;
     }
 
+    .status {
+      margin: 10px auto;
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(250, 204, 21, 0.35);
+      color: #facc15;
+      font-weight: bold;
+    }
+
     .panel {
       background: rgba(3, 12, 5, 0.82);
       border: 1px solid rgba(250, 204, 21, 0.28);
@@ -217,6 +228,10 @@
       background: linear-gradient(135deg, #ef4444, #450a0a);
     }
 
+    .throne {
+      background: linear-gradient(135deg, #facc15, #991b1b);
+    }
+
     .jackpot {
       background: linear-gradient(135deg, #ff00cc, #312e81);
     }
@@ -273,6 +288,11 @@
       border-radius: 14px;
       border: 1px solid rgba(250, 204, 21, 0.24);
       overflow: hidden;
+    }
+
+    .player.offlineCard {
+      opacity: 0.55;
+      filter: grayscale(0.25);
     }
 
     .player::before {
@@ -336,6 +356,30 @@
       z-index: 2;
       color: #e8ffe1;
       font-weight: 700;
+    }
+
+    .onlineBadge,
+    .offlineBadge {
+      position: relative;
+      z-index: 2;
+      display: inline-block;
+      margin-left: 6px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .onlineBadge {
+      background: rgba(34, 197, 94, 0.22);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.45);
+    }
+
+    .offlineBadge {
+      background: rgba(148, 163, 184, 0.18);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.35);
     }
 
     .player.leaderCard {
@@ -404,6 +448,13 @@
     @keyframes winnerPulse {
       from { transform: scale(1); }
       to { transform: scale(1.05); }
+    }
+
+    .warning {
+      color: #facc15;
+      font-weight: bold;
+      min-height: 20px;
+      margin-top: 10px;
     }
 
     .log {
@@ -481,101 +532,193 @@
       right: 18px;
       top: 18px;
       z-index: 50;
-      width: 250px;
+      width: 260px;
       background: rgba(3, 10, 4, 0.88);
       border: 2px solid rgba(250, 204, 21, 0.55);
       border-radius: 18px;
       padding: 12px;
       box-shadow:
-        0 0 22px rgba(250, 204, 21, 0.25),
-        inset 0 0 18px rgba(0, 0, 0, 0.55);
+        0 0 22px rgba(250, 204, 21, 0.22),
+        inset 0 0 25px rgba(0,0,0,0.45);
       backdrop-filter: blur(8px);
+      text-align: left;
     }
 
     .moneyBoardTitle {
-      font-weight: 900;
+      text-align: center;
+      font-size: 13px;
       color: #facc15;
+      font-weight: 900;
       margin-bottom: 8px;
-      text-shadow: 0 0 8px #facc15;
     }
 
     .moneyRow {
       display: flex;
       justify-content: space-between;
       gap: 8px;
-      padding: 7px 8px;
-      margin: 5px 0;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.06);
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       font-size: 13px;
     }
 
-    .moneyRow.leaderRow {
-      background: linear-gradient(90deg, rgba(255,70,0,0.35), rgba(255,200,0,0.18));
-      border: 1px solid rgba(255, 180, 0, 0.55);
-      animation: fireGlow 0.65s infinite alternate;
+    .moneyRow:last-child {
+      border-bottom: none;
+    }
+
+    .leaderRow {
+      background: rgba(250, 204, 21, 0.08);
+      border-radius: 10px;
+      padding: 7px;
     }
 
     .megaEvent {
       position: fixed;
-      inset: 0;
+      left: 50%;
+      top: 44%;
+      transform: translate(-50%, -50%) scale(0.3);
       z-index: 99999;
+      padding: 28px 44px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 30% 20%, #fff7ad, transparent 22%),
+        linear-gradient(135deg, #facc15, #ef4444, #7c3aed);
+      color: white;
+      font-weight: 900;
+      font-size: 46px;
+      text-shadow: 0 4px 18px rgba(0,0,0,0.9);
+      box-shadow: 0 0 70px rgba(250, 204, 21, 0.9);
+      opacity: 0;
       pointer-events: none;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 54px;
-      font-weight: 1000;
-      color: #fff700;
-      text-shadow:
-        0 0 12px #fff700,
-        0 0 30px #ff7300,
-        0 0 55px #ff0000;
-      background: radial-gradient(circle, rgba(255,200,0,0.22), rgba(255,0,0,0.08), transparent 70%);
     }
 
     .megaEvent.show {
-      display: flex;
-      animation: megaPop 1.4s ease-out forwards;
+      animation: megaBoom 1.5s ease-out forwards;
     }
 
-    @keyframes megaPop {
+    @keyframes megaBoom {
       0% {
         opacity: 0;
-        transform: scale(0.4) rotate(-8deg);
+        transform: translate(-50%, -50%) scale(0.25) rotate(-10deg);
       }
-      20% {
+      18% {
         opacity: 1;
-        transform: scale(1.16) rotate(3deg);
+        transform: translate(-50%, -50%) scale(1.25) rotate(4deg);
       }
-      55% {
+      70% {
         opacity: 1;
-        transform: scale(1) rotate(0deg);
+        transform: translate(-50%, -50%) scale(1) rotate(0);
       }
       100% {
         opacity: 0;
-        transform: scale(1.35) rotate(0deg);
+        transform: translate(-50%, -50%) scale(1.35) rotate(8deg);
       }
     }
 
     .screenShake {
-      animation: screenShake 0.55s linear;
+      animation: shake 0.55s linear;
     }
 
-    @keyframes screenShake {
+    @keyframes shake {
       0% { transform: translate(0, 0); }
-      15% { transform: translate(-8px, 5px); }
-      30% { transform: translate(8px, -5px); }
-      45% { transform: translate(-7px, -4px); }
-      60% { transform: translate(7px, 4px); }
-      75% { transform: translate(-4px, 3px); }
+      20% { transform: translate(-8px, 6px); }
+      40% { transform: translate(7px, -6px); }
+      60% { transform: translate(-5px, -4px); }
+      80% { transform: translate(6px, 5px); }
       100% { transform: translate(0, 0); }
     }
 
-    .warning {
-      color: #ffdf70;
-      font-weight: bold;
-      margin-top: 8px;
+    .milestoneModal {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.72);
+      backdrop-filter: blur(8px);
+      padding: 18px;
+    }
+
+    .milestoneModal.show {
+      display: flex;
+    }
+
+    .milestoneBox {
+      width: min(760px, 96vw);
+      background:
+        radial-gradient(circle at top, rgba(250, 204, 21, 0.25), transparent 38%),
+        linear-gradient(135deg, rgba(7, 43, 22, 0.98), rgba(9, 10, 20, 0.98));
+      border: 2px solid rgba(250, 204, 21, 0.75);
+      border-radius: 26px;
+      padding: 24px;
+      box-shadow: 0 0 55px rgba(250, 204, 21, 0.35);
+      animation: modalPop 0.25s ease-out;
+    }
+
+    @keyframes modalPop {
+      from {
+        opacity: 0;
+        transform: scale(0.88);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .milestoneBox h2 {
+      margin: 0;
+      color: #facc15;
+      font-size: 34px;
+      text-shadow: 0 0 18px rgba(250, 204, 21, 0.55);
+    }
+
+    .milestoneBox p {
+      color: #e7ffe1;
+      margin: 10px 0 18px;
+    }
+
+    .milestoneOptions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .milestoneChoice {
+      min-height: 170px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      text-align: left;
+      padding: 18px;
+      color: white;
+      background: linear-gradient(135deg, #166534, #14532d);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.15),
+        0 15px 30px rgba(0,0,0,0.4);
+      transition: 0.14s;
+    }
+
+    .milestoneChoice:nth-child(2) {
+      background: linear-gradient(135deg, #991b1b, #312e81);
+    }
+
+    .milestoneChoice:hover {
+      transform: translateY(-4px) scale(1.02);
+      filter: brightness(1.18);
+    }
+
+    .milestoneChoice strong {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #fff7ad;
+    }
+
+    .milestoneChoice span {
+      color: #f5ffe9;
+      line-height: 1.35;
+      font-size: 14px;
     }
 
     @media (max-width: 900px) {
@@ -584,22 +727,26 @@
         right: auto;
         top: auto;
         width: auto;
-        margin: 12px 18px;
+        margin: 16px 18px 0;
+        z-index: 3;
       }
-    }
 
-    @media (max-width: 600px) {
       h1 {
         font-size: 42px;
       }
 
-      .actions {
-        grid-template-columns: 1fr;
+      .container {
+        padding: 14px;
       }
 
       .saveName {
-        margin-top: 10px;
         margin-left: 0;
+        margin-top: 8px;
+      }
+
+      .megaEvent {
+        font-size: 30px;
+        width: 86vw;
       }
     }
   </style>
@@ -610,10 +757,19 @@
   <div id="moneyBoard" class="moneyBoard"></div>
   <div id="megaEvent" class="megaEvent"></div>
 
-  <div class="container">
-    <div class="table">
+  <div id="milestoneModal" class="milestoneModal">
+    <div class="milestoneBox">
+      <h2 id="milestoneTitle">500.000 TREEZ!</h2>
+      <p>Bu eşiği geçtin. Bir seçim yapmadan devam edemezsin. Demokrasi geldi, başımıza iş aldık.</p>
+      <div id="milestoneOptions" class="milestoneOptions"></div>
+    </div>
+  </div>
+
+  <main class="container">
+    <section class="table">
       <h1>TREEZCOIN</h1>
-      <div class="subtitle">Rulet masası modu. Max 6 oyuncu. Hedef: 10.000.000 TREEZ.</div>
+      <div class="subtitle">10.000.000 TREEZ yapan kazanır. 500K ve katlarında özel seçim açılır.</div>
+      <div id="statusBox" class="status">Bağlanıyor...</div>
 
       <div class="panel">
         <input id="nameInput" placeholder="İsmini yaz" maxlength="16" />
@@ -624,57 +780,64 @@
         <div class="actions">
           <button class="actionBtn mine" onclick="sendAction('mine', event)">
             <span class="actionTitle">TREEZ Kaz</span>
-            <span class="actionDesc">Güvenli kazanç. Her tıklama TREEZ üretir.</span>
-            <span class="actionCost">Risk: Yok</span>
+            <span class="actionDesc">Güvenli kazım. Az verir ama seni rezil etmez.</span>
+            <span class="actionCost">Cooldown: çok kısa</span>
             <span class="cooldownFill"></span>
           </button>
 
           <button class="actionBtn greed" onclick="sendAction('greed', event)">
             <span class="actionTitle">Katla</span>
-            <span class="actionDesc">Başarılı olursa skor x2 olur, patlarsa düşer.</span>
-            <span class="actionCost">Risk: Orta</span>
+            <span class="actionDesc">%68 şansla x2. Tutmazsa paran kırpılır.</span>
+            <span class="actionCost">Riskli ama mantıklı</span>
             <span class="cooldownFill"></span>
           </button>
 
           <button class="actionBtn mega" onclick="sendAction('mega', event)">
             <span class="actionTitle">Mega Pump</span>
-            <span class="actionDesc">Büyük çarpan. Büyük tokat ihtimali de yanında gelir.</span>
+            <span class="actionDesc">%44 şansla x5. Tutmazsa piyasa tokadı.</span>
             <span class="actionCost">Gerekli: 50 TREEZ</span>
             <span class="cooldownFill"></span>
           </button>
 
           <button class="actionBtn steal" onclick="sendAction('steal', event)">
             <span class="actionTitle">Cüzdan Çal</span>
-            <span class="actionDesc">Rastgele bir oyuncudan TREEZ çalar.</span>
-            <span class="actionCost">Rakip bozma</span>
+            <span class="actionDesc">Rastgele oyuncudan %24 çalar. Ahlak öldü.</span>
+            <span class="actionCost">Hedef varsa çalışır</span>
             <span class="cooldownFill"></span>
           </button>
 
           <button class="actionBtn tax" onclick="sendAction('tax', event)">
             <span class="actionTitle">Lider Vergisi</span>
-            <span class="actionDesc">Birinci sıradaki oyuncudan pay alır.</span>
-            <span class="actionCost">Lidere karşı</span>
+            <span class="actionDesc">Liderden %18 alır. Devlet simülasyonu.</span>
+            <span class="actionCost">Lider değilsen iyi</span>
             <span class="cooldownFill"></span>
           </button>
 
           <button class="actionBtn rug" onclick="sendAction('rug', event)">
             <span class="actionTitle">Rug Pull</span>
-            <span class="actionDesc">Herkesi düşürmeye çalışır. Patlarsa sen sıfırlanırsın.</span>
+            <span class="actionDesc">%38 şansla herkesi yakar. Tutmazsa sen sıfır.</span>
             <span class="actionCost">Gerekli: 100 TREEZ</span>
+            <span class="cooldownFill"></span>
+          </button>
+
+          <button class="actionBtn throne" onclick="sendAction('throne', event)">
+            <span class="actionTitle">Taht Soygunu</span>
+            <span class="actionDesc">%38 şansla liderin yarısını alır. Tutmazsa %75 kayıp.</span>
+            <span class="actionCost">Lider avı</span>
             <span class="cooldownFill"></span>
           </button>
 
           <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)">
             <span class="actionTitle">Jackpot</span>
-            <span class="actionDesc">Düşük ihtimalle dev kazanç verir.</span>
+            <span class="actionDesc">%22 şansla x20. Tutmazsa kasa yine kazanır.</span>
             <span class="actionCost">Gerekli: 500 TREEZ</span>
             <span class="cooldownFill"></span>
           </button>
         </div>
       </div>
 
-      <div id="winnerBox" class="winner"></div>
       <div id="warningBox" class="warning"></div>
+      <div id="winnerBox" class="winner"></div>
 
       <div class="panel">
         <h2>Oyuncular</h2>
@@ -685,8 +848,8 @@
         <h2>Masa Geçmişi</h2>
         <div id="logs"></div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="game.js"></script>
