@@ -3,12 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>TREEZCOIN</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>TREEZCOIN REWORK</title>
 
   <style>
-    * {
-      box-sizing: border-box;
+    * { box-sizing: border-box; }
+
+    :root {
+      --gold: #facc15;
+      --green: #39ff14;
+      --dark: #030a04;
+      --panel: rgba(3, 12, 5, 0.82);
+      --line: rgba(250, 204, 21, 0.28);
+      --red: #ef4444;
+      --blue: #38bdf8;
+      --purple: #a855f7;
     }
 
     body {
@@ -16,7 +27,6 @@
       min-height: 100vh;
       font-family: Arial, sans-serif;
       color: white;
-      text-align: center;
       overflow-x: hidden;
       background:
         radial-gradient(circle at center, rgba(10, 105, 43, 0.7), transparent 28%),
@@ -31,7 +41,7 @@
       pointer-events: none;
       background:
         linear-gradient(45deg, rgba(255, 215, 0, 0.08), transparent 30%, rgba(255, 0, 0, 0.08)),
-        radial-gradient(circle at center, transparent 0 28%, rgba(0,0,0,0.55) 75%);
+        radial-gradient(circle at center, transparent 0 28%, rgba(0,0,0,0.62) 75%);
       z-index: 0;
     }
 
@@ -45,7 +55,7 @@
 
     .bgCoin {
       position: absolute;
-      top: -60px;
+      top: -70px;
       width: 34px;
       height: 34px;
       border-radius: 50%;
@@ -61,114 +71,182 @@
     }
 
     @keyframes coinFall {
-      to {
-        transform: translateY(110vh) rotate(720deg);
-        opacity: 0;
-      }
+      to { transform: translateY(115vh) rotate(720deg); opacity: 0; }
     }
 
-    .container {
+    .app {
       position: relative;
       z-index: 2;
-      max-width: 1150px;
-      margin: auto;
-      padding: 24px;
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 20px;
     }
 
-    .table {
-      border-radius: 32px;
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--line);
+      border-radius: 24px;
       padding: 18px;
-      background:
-        radial-gradient(circle at center, rgba(11, 72, 31, 0.96), rgba(2, 18, 7, 0.98)),
-        linear-gradient(90deg, #5c2e10, #2a1306);
-      border: 10px solid rgba(85, 42, 14, 0.95);
-      box-shadow:
-        inset 0 0 50px rgba(0,0,0,0.6),
-        0 0 40px rgba(0,0,0,0.55);
+      box-shadow: 0 0 28px rgba(0,0,0,0.35);
     }
 
     h1 {
-      font-size: 64px;
-      margin: 8px 0 4px;
+      margin: 0;
       letter-spacing: 4px;
+      font-size: clamp(40px, 6vw, 76px);
       color: #7cff4f;
-      text-shadow:
-        0 0 8px #7cff4f,
-        0 0 20px #39ff14,
-        0 0 45px #00ff88;
+      text-shadow: 0 0 8px #7cff4f, 0 0 20px #39ff14, 0 0 45px #00ff88;
       animation: titlePulse 1.3s infinite alternate;
     }
 
     @keyframes titlePulse {
-      from {
-        transform: scale(1);
-        filter: brightness(1);
-      }
-      to {
-        transform: scale(1.025);
-        filter: brightness(1.35);
-      }
+      from { transform: scale(1); filter: brightness(1); }
+      to { transform: scale(1.018); filter: brightness(1.3); }
     }
 
-    .subtitle {
-      color: #eaffd7;
-      margin-bottom: 18px;
-      font-size: 17px;
+    .subtitle { color: #eaffd7; margin-top: 6px; }
+
+    .statusGrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
     }
 
-    .status {
-      margin: 10px auto;
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(250, 204, 21, 0.35);
-      color: #facc15;
-      font-weight: bold;
+    .chip {
+      background: rgba(0,0,0,0.48);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px 12px;
+      color: #f8ffe7;
+      min-width: 130px;
+      text-align: center;
+    }
+
+    .chip strong {
+      display: block;
+      color: var(--gold);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .market {
+      border-radius: 22px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, rgba(250,204,21,0.16), rgba(56,189,248,0.08));
+      border: 1px solid rgba(250,204,21,0.34);
+      box-shadow: 0 0 22px rgba(250,204,21,0.12);
+    }
+
+    .marketTitle {
+      color: var(--gold);
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .marketDesc { color: #e7ffe1; margin-top: 4px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(360px, 2fr) minmax(280px, 0.9fr);
+      gap: 14px;
+      align-items: start;
     }
 
     .panel {
-      background: rgba(3, 12, 5, 0.82);
-      border: 1px solid rgba(250, 204, 21, 0.28);
-      box-shadow: 0 0 24px rgba(0, 255, 80, 0.12);
-      border-radius: 20px;
-      padding: 18px;
-      margin-top: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 0 24px rgba(0, 255, 80, 0.10);
+      border-radius: 22px;
+      padding: 16px;
       backdrop-filter: blur(8px);
+      margin-bottom: 14px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      color: #fff7ad;
+      font-size: 20px;
+    }
+
+    .nameRow {
+      display: flex;
+      gap: 8px;
     }
 
     input {
+      flex: 1;
+      min-width: 0;
       padding: 13px;
       font-size: 16px;
-      border-radius: 10px;
-      border: 2px solid #facc15;
+      border-radius: 12px;
+      border: 2px solid var(--gold);
       outline: none;
-      width: 230px;
       background: #051005;
       color: white;
       text-align: center;
     }
 
-    .saveName {
-      padding: 13px 18px;
-      margin-left: 8px;
-      border-radius: 12px;
+    .saveName, .smallBtn {
       border: none;
+      border-radius: 12px;
       cursor: pointer;
       font-weight: bold;
       background: linear-gradient(135deg, #facc15, #a16207);
       color: #140d00;
+      padding: 13px 15px;
+    }
+
+    .myCard {
+      text-align: center;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-top: 12px;
+    }
+
+    .myScore {
+      font-size: 34px;
+      color: var(--green);
+      font-weight: 900;
+      text-shadow: 0 0 16px rgba(57,255,20,0.35);
+    }
+
+    .effectRow {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .effectBadge {
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      color: #e7ffe1;
     }
 
     .actions {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(2, minmax(160px, 1fr));
+      gap: 12px;
     }
 
     .actionBtn {
       position: relative;
-      min-height: 118px;
+      min-height: 124px;
       border: none;
       border-radius: 18px;
       cursor: pointer;
@@ -176,9 +254,7 @@
       color: white;
       text-align: left;
       padding: 14px;
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.16),
-        0 12px 26px rgba(0,0,0,0.32);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16), 0 12px 26px rgba(0,0,0,0.32);
       transition: 0.14s;
     }
 
@@ -186,83 +262,34 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.72));
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.74));
       z-index: 0;
     }
 
-    .actionBtn:hover {
-      transform: translateY(-3px) scale(1.025);
-      filter: brightness(1.14);
-    }
+    .actionBtn:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.15); }
+    .actionBtn:active { transform: scale(0.97); }
+    .actionBtn.cooling, .actionBtn.locked { cursor: not-allowed; filter: grayscale(0.35) brightness(0.65); }
 
-    .actionBtn:active {
-      transform: scale(0.97);
-    }
+    .mine { background: linear-gradient(135deg, #0f7a3a, #073b1c); }
+    .greed { background: linear-gradient(135deg, #87c900, #315f05); }
+    .mega { background: linear-gradient(135deg, #0095ff, #062b70); }
+    .steal { background: linear-gradient(135deg, #7c3aed, #2e1065); }
+    .tax { background: linear-gradient(135deg, #f59e0b, #7c2d12); }
+    .rug { background: linear-gradient(135deg, #ef4444, #450a0a); }
+    .throne { background: linear-gradient(135deg, #facc15, #991b1b); }
+    .jackpot { background: linear-gradient(135deg, #ff00cc, #312e81); }
+    .shield { background: linear-gradient(135deg, #22c55e, #164e63); }
+    .focus { background: linear-gradient(135deg, #38bdf8, #4c1d95); }
 
-    .actionBtn.cooling {
-      cursor: not-allowed;
-      filter: grayscale(0.3) brightness(0.72);
-    }
-
-    .mine {
-      background: linear-gradient(135deg, #0f7a3a, #073b1c);
-    }
-
-    .greed {
-      background: linear-gradient(135deg, #87c900, #315f05);
-    }
-
-    .mega {
-      background: linear-gradient(135deg, #0095ff, #062b70);
-    }
-
-    .steal {
-      background: linear-gradient(135deg, #7c3aed, #2e1065);
-    }
-
-    .tax {
-      background: linear-gradient(135deg, #f59e0b, #7c2d12);
-    }
-
-    .rug {
-      background: linear-gradient(135deg, #ef4444, #450a0a);
-    }
-
-    .throne {
-      background: linear-gradient(135deg, #facc15, #991b1b);
-    }
-
-    .jackpot {
-      background: linear-gradient(135deg, #ff00cc, #312e81);
-    }
-
-    .actionTitle,
-    .actionDesc,
-    .actionCost {
+    .actionTitle, .actionDesc, .actionCost {
       position: relative;
       z-index: 2;
       display: block;
     }
 
-    .actionTitle {
-      font-size: 20px;
-      font-weight: 900;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.9);
-    }
-
-    .actionDesc {
-      margin-top: 8px;
-      font-size: 13px;
-      color: #e7ffe1;
-      line-height: 1.25;
-    }
-
-    .actionCost {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #facc15;
-      font-weight: bold;
-    }
+    .actionTitle { font-size: 19px; font-weight: 900; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
+    .actionDesc { margin-top: 8px; font-size: 13px; color: #e7ffe1; line-height: 1.25; }
+    .actionCost { margin-top: 10px; font-size: 12px; color: var(--gold); font-weight: bold; }
 
     .cooldownFill {
       position: absolute;
@@ -277,71 +304,48 @@
 
     .playersGrid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
+      grid-template-columns: 1fr;
+      gap: 10px;
     }
 
     .player {
       position: relative;
-      padding: 14px;
+      padding: 12px;
       background: rgba(8, 18, 8, 0.95);
-      border-radius: 14px;
+      border-radius: 16px;
       border: 1px solid rgba(250, 204, 21, 0.24);
       overflow: hidden;
     }
 
-    .player.offlineCard {
-      opacity: 0.55;
-      filter: grayscale(0.25);
+    .player.mineCard { border-color: rgba(57,255,20,0.75); box-shadow: 0 0 20px rgba(57,255,20,0.12); }
+    .player.offlineCard { opacity: 0.58; filter: grayscale(0.25); }
+    .player.leaderCard { border: 2px solid rgba(255, 160, 0, 0.9); animation: fireGlow 0.7s infinite alternate; }
+    .player.secondCard { border: 2px solid rgba(0, 217, 255, 0.75); box-shadow: 0 0 20px rgba(0, 217, 255, 0.25); }
+
+    @keyframes fireGlow {
+      from { box-shadow: 0 0 8px rgba(255, 90, 0, 0.35); }
+      to { box-shadow: 0 0 22px rgba(255, 180, 0, 0.75); }
     }
 
-    .player::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(250,204,21,0.12), transparent);
-      transform: translateX(-100%);
-      animation: shine 2.5s infinite;
-    }
-
-    @keyframes shine {
-      to {
-        transform: translateX(100%);
-      }
+    .playerTop {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
     }
 
     .fireLeader {
-      position: relative;
-      z-index: 2;
       color: #fff2a8;
       font-weight: 900;
       animation: fireText 0.55s infinite alternate;
     }
 
     @keyframes fireText {
-      0% {
-        color: #fff7ad;
-        text-shadow:
-          0 0 5px #fff700,
-          0 0 12px #ff9900,
-          0 0 22px #ff3300;
-      }
-      100% {
-        color: #ff5a00;
-        text-shadow:
-          0 0 7px #ffff00,
-          0 0 17px #ff7300,
-          0 0 32px #ff0000;
-      }
+      0% { color: #fff7ad; text-shadow: 0 0 5px #fff700, 0 0 12px #ff9900, 0 0 22px #ff3300; }
+      100% { color: #ff5a00; text-shadow: 0 0 7px #ffff00, 0 0 17px #ff7300, 0 0 32px #ff0000; }
     }
 
-    .rgbRunner {
-      position: relative;
-      z-index: 2;
-      font-weight: 900;
-      animation: rgbText 1.1s linear infinite;
-    }
-
+    .rgbRunner { font-weight: 900; animation: rgbText 1.1s linear infinite; }
     @keyframes rgbText {
       0% { color: #ff004c; text-shadow: 0 0 8px #ff004c; }
       20% { color: #ffea00; text-shadow: 0 0 8px #ffea00; }
@@ -351,77 +355,25 @@
       100% { color: #ff004c; text-shadow: 0 0 8px #ff004c; }
     }
 
-    .normalName {
-      position: relative;
-      z-index: 2;
-      color: #e8ffe1;
-      font-weight: 700;
-    }
+    .normalName { color: #e8ffe1; font-weight: 800; }
+    .score { font-size: 24px; color: #7cff4f; margin-top: 8px; font-weight: bold; }
+    .gain { color: #fff700; font-size: 14px; height: 18px; margin-top: 4px; }
 
-    .onlineBadge,
-    .offlineBadge {
-      position: relative;
-      z-index: 2;
+    .badge {
       display: inline-block;
-      margin-left: 6px;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: bold;
+      border: 1px solid rgba(255,255,255,0.16);
+      color: #e7ffe1;
     }
 
-    .onlineBadge {
-      background: rgba(34, 197, 94, 0.22);
-      color: #86efac;
-      border: 1px solid rgba(34, 197, 94, 0.45);
-    }
-
-    .offlineBadge {
-      background: rgba(148, 163, 184, 0.18);
-      color: #cbd5e1;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-    }
-
-    .player.leaderCard {
-      border: 2px solid rgba(255, 160, 0, 0.9);
-      animation: fireGlow 0.7s infinite alternate;
-    }
-
-    .player.secondCard {
-      border: 2px solid rgba(0, 217, 255, 0.75);
-      box-shadow: 0 0 20px rgba(0, 217, 255, 0.25);
-    }
-
-    @keyframes fireGlow {
-      from {
-        box-shadow: 0 0 8px rgba(255, 90, 0, 0.35);
-      }
-      to {
-        box-shadow: 0 0 22px rgba(255, 180, 0, 0.75);
-      }
-    }
-
-    .score {
-      position: relative;
-      z-index: 2;
-      font-size: 24px;
-      color: #7cff4f;
-      margin-top: 8px;
-      font-weight: bold;
-    }
-
-    .gain {
-      position: relative;
-      z-index: 2;
-      color: #fff700;
-      font-size: 14px;
-      height: 18px;
-      margin-top: 4px;
-    }
+    .onlineBadge { background: rgba(34, 197, 94, 0.22); color: #86efac; }
+    .offlineBadge { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; }
+    .pendingBadge { background: rgba(250, 204, 21, 0.18); color: #fde68a; }
 
     .progressWrap {
-      position: relative;
-      z-index: 2;
       margin-top: 10px;
       height: 8px;
       background: rgba(255,255,255,0.12);
@@ -436,37 +388,77 @@
       box-shadow: 0 0 12px #facc15;
     }
 
-    .winner {
-      font-size: 32px;
-      color: #fff700;
-      margin-top: 20px;
-      font-weight: bold;
-      text-shadow: 0 0 16px #fff700;
-      animation: winnerPulse 0.8s infinite alternate;
-    }
-
-    @keyframes winnerPulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.05); }
-    }
-
-    .warning {
-      color: #facc15;
-      font-weight: bold;
-      min-height: 20px;
-      margin-top: 10px;
-    }
-
     .log {
       text-align: left;
       color: #d9ffd3;
       font-size: 14px;
       background: rgba(0, 0, 0, 0.35);
       padding: 10px;
-      border-radius: 8px;
-      margin: 6px 0;
-      border-left: 3px solid #facc15;
+      border-radius: 10px;
+      margin: 7px 0;
+      border-left: 3px solid var(--gold);
     }
+
+    .log.important { border-left-color: var(--red); background: rgba(127, 29, 29, 0.22); }
+
+    .winner {
+      display: none;
+      text-align: center;
+      font-size: 30px;
+      color: #fff700;
+      margin-bottom: 14px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(0,0,0,0.55);
+      font-weight: bold;
+      text-shadow: 0 0 16px #fff700;
+      animation: winnerPulse 0.8s infinite alternate;
+    }
+
+    .winner.show { display: block; }
+    @keyframes winnerPulse { from { transform: scale(1); } to { transform: scale(1.03); } }
+
+    .moneyBoard {
+      display: grid;
+      gap: 8px;
+    }
+
+    .moneyRow {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.24);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+    }
+
+    .moneyRow.leaderRow { background: rgba(250, 204, 21, 0.09); border-color: rgba(250,204,21,0.25); }
+
+    .toastWrap {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 120000;
+      display: grid;
+      gap: 8px;
+      width: min(360px, calc(100vw - 36px));
+    }
+
+    .toast {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(3, 10, 4, 0.92);
+      border: 1px solid rgba(250,204,21,0.35);
+      color: #e7ffe1;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+      animation: toastIn 0.18s ease-out;
+    }
+
+    .toast.error { border-color: rgba(239,68,68,0.55); }
+    .toast.warn { border-color: rgba(250,204,21,0.85); }
+    @keyframes toastIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
     .floating {
       position: fixed;
@@ -478,98 +470,20 @@
       z-index: 9999;
     }
 
-    @keyframes floatUp {
-      from {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-      to {
-        opacity: 0;
-        transform: translateY(-70px) scale(1.45);
-      }
-    }
+    @keyframes floatUp { to { opacity: 0; transform: translateY(-70px) scale(1.45); } }
 
-    .particle {
+    .particle, .explosionParticle {
       position: fixed;
-      width: 8px;
-      height: 8px;
       border-radius: 50%;
       pointer-events: none;
+      z-index: 9998;
       background: #facc15;
       box-shadow: 0 0 12px #facc15;
-      animation: particlePop 0.6s ease-out forwards;
-      z-index: 9998;
     }
 
-    @keyframes particlePop {
-      to {
-        transform: translate(var(--x), var(--y)) scale(0);
-        opacity: 0;
-      }
-    }
-
-    .explosionParticle {
-      position: fixed;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 99998;
-      background: radial-gradient(circle, #fff7ad, #f97316, #dc2626);
-      box-shadow: 0 0 16px #facc15;
-      animation: explode 0.95s ease-out forwards;
-    }
-
-    @keyframes explode {
-      to {
-        transform: translate(var(--x), var(--y)) scale(0);
-        opacity: 0;
-      }
-    }
-
-    .moneyBoard {
-      position: fixed;
-      right: 18px;
-      top: 18px;
-      z-index: 50;
-      width: 260px;
-      background: rgba(3, 10, 4, 0.88);
-      border: 2px solid rgba(250, 204, 21, 0.55);
-      border-radius: 18px;
-      padding: 12px;
-      box-shadow:
-        0 0 22px rgba(250, 204, 21, 0.22),
-        inset 0 0 25px rgba(0,0,0,0.45);
-      backdrop-filter: blur(8px);
-      text-align: left;
-    }
-
-    .moneyBoardTitle {
-      text-align: center;
-      font-size: 13px;
-      color: #facc15;
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-
-    .moneyRow {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      font-size: 13px;
-    }
-
-    .moneyRow:last-child {
-      border-bottom: none;
-    }
-
-    .leaderRow {
-      background: rgba(250, 204, 21, 0.08);
-      border-radius: 10px;
-      padding: 7px;
-    }
+    .particle { width: 8px; height: 8px; animation: particlePop 0.6s ease-out forwards; }
+    .explosionParticle { width: 12px; height: 12px; z-index: 99998; background: radial-gradient(circle, #fff7ad, #f97316, #dc2626); animation: particlePop 0.95s ease-out forwards; }
+    @keyframes particlePop { to { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
 
     .megaEvent {
       position: fixed;
@@ -579,45 +493,26 @@
       z-index: 99999;
       padding: 28px 44px;
       border-radius: 24px;
-      background:
-        radial-gradient(circle at 30% 20%, #fff7ad, transparent 22%),
-        linear-gradient(135deg, #facc15, #ef4444, #7c3aed);
+      background: radial-gradient(circle at 30% 20%, #fff7ad, transparent 22%), linear-gradient(135deg, #facc15, #ef4444, #7c3aed);
       color: white;
       font-weight: 900;
-      font-size: 46px;
+      font-size: 42px;
+      text-align: center;
       text-shadow: 0 4px 18px rgba(0,0,0,0.9);
       box-shadow: 0 0 70px rgba(250, 204, 21, 0.9);
       opacity: 0;
       pointer-events: none;
     }
 
-    .megaEvent.show {
-      animation: megaBoom 1.5s ease-out forwards;
-    }
-
+    .megaEvent.show { animation: megaBoom 1.5s ease-out forwards; }
     @keyframes megaBoom {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.25) rotate(-10deg);
-      }
-      18% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.25) rotate(4deg);
-      }
-      70% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1) rotate(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1.35) rotate(8deg);
-      }
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.25) rotate(-10deg); }
+      18% { opacity: 1; transform: translate(-50%, -50%) scale(1.20) rotate(4deg); }
+      70% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35) rotate(8deg); }
     }
 
-    .screenShake {
-      animation: shake 0.55s linear;
-    }
-
+    .screenShake { animation: shake 0.55s linear; }
     @keyframes shake {
       0% { transform: translate(0, 0); }
       20% { transform: translate(-8px, 6px); }
@@ -639,15 +534,11 @@
       padding: 18px;
     }
 
-    .milestoneModal.show {
-      display: flex;
-    }
+    .milestoneModal.show { display: flex; }
 
     .milestoneBox {
-      width: min(760px, 96vw);
-      background:
-        radial-gradient(circle at top, rgba(250, 204, 21, 0.25), transparent 38%),
-        linear-gradient(135deg, rgba(7, 43, 22, 0.98), rgba(9, 10, 20, 0.98));
+      width: min(800px, 96vw);
+      background: radial-gradient(circle at top, rgba(250, 204, 21, 0.25), transparent 38%), linear-gradient(135deg, rgba(7, 43, 22, 0.98), rgba(9, 10, 20, 0.98));
       border: 2px solid rgba(250, 204, 21, 0.75);
       border-radius: 26px;
       padding: 24px;
@@ -655,28 +546,10 @@
       animation: modalPop 0.25s ease-out;
     }
 
-    @keyframes modalPop {
-      from {
-        opacity: 0;
-        transform: scale(0.88);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
+    @keyframes modalPop { from { opacity: 0; transform: scale(0.88); } to { opacity: 1; transform: scale(1); } }
 
-    .milestoneBox h2 {
-      margin: 0;
-      color: #facc15;
-      font-size: 34px;
-      text-shadow: 0 0 18px rgba(250, 204, 21, 0.55);
-    }
-
-    .milestoneBox p {
-      color: #e7ffe1;
-      margin: 10px 0 18px;
-    }
+    .milestoneBox h2 { margin: 0; color: var(--gold); font-size: 34px; text-shadow: 0 0 18px rgba(250, 204, 21, 0.55); }
+    .milestoneBox p { color: #e7ffe1; margin: 10px 0 18px; }
 
     .milestoneOptions {
       display: grid;
@@ -685,7 +558,7 @@
     }
 
     .milestoneChoice {
-      min-height: 170px;
+      min-height: 178px;
       border: none;
       border-radius: 20px;
       cursor: pointer;
@@ -693,165 +566,181 @@
       padding: 18px;
       color: white;
       background: linear-gradient(135deg, #166534, #14532d);
-      box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.15),
-        0 15px 30px rgba(0,0,0,0.4);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15), 0 15px 30px rgba(0,0,0,0.4);
       transition: 0.14s;
     }
 
-    .milestoneChoice:nth-child(2) {
-      background: linear-gradient(135deg, #991b1b, #312e81);
+    .milestoneChoice:nth-child(2) { background: linear-gradient(135deg, #991b1b, #312e81); }
+    .milestoneChoice:hover { transform: translateY(-4px) scale(1.02); filter: brightness(1.18); }
+    .milestoneChoice strong { display: block; font-size: 22px; margin-bottom: 10px; color: #fff7ad; }
+    .milestoneChoice span { color: #f5ffe9; line-height: 1.35; font-size: 14px; }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .topbar { grid-template-columns: 1fr; }
+      .statusGrid { grid-template-columns: repeat(2, 1fr); }
     }
 
-    .milestoneChoice:hover {
-      transform: translateY(-4px) scale(1.02);
-      filter: brightness(1.18);
-    }
-
-    .milestoneChoice strong {
-      display: block;
-      font-size: 22px;
-      margin-bottom: 10px;
-      color: #fff7ad;
-    }
-
-    .milestoneChoice span {
-      color: #f5ffe9;
-      line-height: 1.35;
-      font-size: 14px;
-    }
-
-    @media (max-width: 900px) {
-      .moneyBoard {
-        position: relative;
-        right: auto;
-        top: auto;
-        width: auto;
-        margin: 16px 18px 0;
-        z-index: 3;
-      }
-
-      h1 {
-        font-size: 42px;
-      }
-
-      .container {
-        padding: 14px;
-      }
-
-      .saveName {
-        margin-left: 0;
-        margin-top: 8px;
-      }
-
-      .megaEvent {
-        font-size: 30px;
-        width: 86vw;
-      }
+    @media (max-width: 640px) {
+      .app { padding: 12px; }
+      .actions { grid-template-columns: 1fr; }
+      .nameRow { flex-direction: column; }
+      .statusGrid { grid-template-columns: 1fr; }
+      .megaEvent { width: 86vw; font-size: 28px; }
     }
   </style>
 </head>
 
 <body>
   <div id="coinRain"></div>
-  <div id="moneyBoard" class="moneyBoard"></div>
   <div id="megaEvent" class="megaEvent"></div>
+  <div id="toastWrap" class="toastWrap"></div>
 
   <div id="milestoneModal" class="milestoneModal">
     <div class="milestoneBox">
-      <h2 id="milestoneTitle">500.000 TREEZ!</h2>
-      <p>Bu eşiği geçtin. Bir seçim yapmadan devam edemezsin. Demokrasi geldi, başımıza iş aldık.</p>
+      <h2 id="milestoneTitle">500.000 TREEZ EŞİĞİ!</h2>
+      <p>Bu eşiği geçtin. Bir seçim yapmadan devam edemezsin. Özgür irade yine başımıza bela oldu.</p>
       <div id="milestoneOptions" class="milestoneOptions"></div>
     </div>
   </div>
 
-  <main class="container">
-    <section class="table">
-      <h1>TREEZCOIN</h1>
-      <div class="subtitle">10.000.000 TREEZ yapan kazanır. 500K ve katlarında özel seçim açılır.</div>
-      <div id="statusBox" class="status">Bağlanıyor...</div>
-
-      <div class="panel">
-        <input id="nameInput" placeholder="İsmini yaz" maxlength="16" />
-        <button class="saveName" onclick="setName()">İsmi Kaydet</button>
+  <main class="app">
+    <section class="topbar">
+      <div class="brand">
+        <h1>TREEZCOIN</h1>
+        <div class="subtitle">Büyük rework: market olayları, kalkan, focus, kalıcı oturum, 500K seçimleri, süreli masa.</div>
       </div>
 
-      <div class="panel">
-        <div class="actions">
-          <button class="actionBtn mine" onclick="sendAction('mine', event)">
-            <span class="actionTitle">TREEZ Kaz</span>
-            <span class="actionDesc">Güvenli kazım. Az verir ama seni rezil etmez.</span>
-            <span class="actionCost">Cooldown: çok kısa</span>
-            <span class="cooldownFill"></span>
-          </button>
+      <div class="statusGrid">
+        <div class="chip"><strong>Bağlantı</strong><span id="statusBox">Bağlanıyor...</span></div>
+        <div class="chip"><strong>Oyuncu</strong><span id="onlineBox">0/6</span></div>
+        <div class="chip"><strong>Süre</strong><span id="timerBox">--:--</span></div>
+        <div class="chip"><strong>Hedef</strong><span>10M TREEZ</span></div>
+      </div>
+    </section>
 
-          <button class="actionBtn greed" onclick="sendAction('greed', event)">
-            <span class="actionTitle">Katla</span>
-            <span class="actionDesc">%68 şansla x2. Tutmazsa paran kırpılır.</span>
-            <span class="actionCost">Riskli ama mantıklı</span>
-            <span class="cooldownFill"></span>
-          </button>
+    <section class="market">
+      <div class="marketTitle" id="marketTitle">Piyasa yükleniyor...</div>
+      <div class="marketDesc" id="marketDesc">Render uyanırsa evren de uyanır.</div>
+    </section>
 
-          <button class="actionBtn mega" onclick="sendAction('mega', event)">
-            <span class="actionTitle">Mega Pump</span>
-            <span class="actionDesc">%44 şansla x5. Tutmazsa piyasa tokadı.</span>
-            <span class="actionCost">Gerekli: 50 TREEZ</span>
-            <span class="cooldownFill"></span>
-          </button>
+    <div id="winnerBox" class="winner"></div>
 
-          <button class="actionBtn steal" onclick="sendAction('steal', event)">
-            <span class="actionTitle">Cüzdan Çal</span>
-            <span class="actionDesc">Rastgele oyuncudan %24 çalar. Ahlak öldü.</span>
-            <span class="actionCost">Hedef varsa çalışır</span>
-            <span class="cooldownFill"></span>
-          </button>
+    <section class="layout">
+      <aside>
+        <div class="panel">
+          <h2>Kimlik</h2>
+          <div class="nameRow">
+            <input id="nameInput" placeholder="İsmini yaz" maxlength="16" />
+            <button class="saveName" onclick="setName()">Kaydet</button>
+          </div>
 
-          <button class="actionBtn tax" onclick="sendAction('tax', event)">
-            <span class="actionTitle">Lider Vergisi</span>
-            <span class="actionDesc">Liderden %18 alır. Devlet simülasyonu.</span>
-            <span class="actionCost">Lider değilsen iyi</span>
-            <span class="cooldownFill"></span>
-          </button>
-
-          <button class="actionBtn rug" onclick="sendAction('rug', event)">
-            <span class="actionTitle">Rug Pull</span>
-            <span class="actionDesc">%38 şansla herkesi yakar. Tutmazsa sen sıfır.</span>
-            <span class="actionCost">Gerekli: 100 TREEZ</span>
-            <span class="cooldownFill"></span>
-          </button>
-
-          <button class="actionBtn throne" onclick="sendAction('throne', event)">
-            <span class="actionTitle">Taht Soygunu</span>
-            <span class="actionDesc">%38 şansla liderin yarısını alır. Tutmazsa %75 kayıp.</span>
-            <span class="actionCost">Lider avı</span>
-            <span class="cooldownFill"></span>
-          </button>
-
-          <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)">
-            <span class="actionTitle">Jackpot</span>
-            <span class="actionDesc">%22 şansla x20. Tutmazsa kasa yine kazanır.</span>
-            <span class="actionCost">Gerekli: 500 TREEZ</span>
-            <span class="cooldownFill"></span>
-          </button>
+          <div class="myCard">
+            <div id="myName">Player</div>
+            <div class="myScore" id="myScore">0</div>
+            <div>TREEZ</div>
+            <div class="effectRow" id="effectRow"></div>
+          </div>
         </div>
-      </div>
 
-      <div id="warningBox" class="warning"></div>
-      <div id="winnerBox" class="winner"></div>
+        <div class="panel">
+          <h2>Canlı TREEZ Tablosu</h2>
+          <div id="moneyBoard" class="moneyBoard"></div>
+        </div>
+      </aside>
 
-      <div class="panel">
-        <h2>Oyuncular</h2>
-        <div id="players" class="playersGrid"></div>
-      </div>
+      <section>
+        <div class="panel">
+          <h2>Aksiyonlar</h2>
+          <div class="actions">
+            <button class="actionBtn mine" data-action="mine" onclick="sendAction('mine', event)">
+              <span class="actionTitle">TREEZ Kaz</span>
+              <span class="actionDesc">Güvenli kazım. Boğa piyasasında daha iyi verir.</span>
+              <span class="actionCost">Cooldown: çok kısa</span>
+              <span class="cooldownFill"></span>
+            </button>
 
-      <div class="panel">
-        <h2>Masa Geçmişi</h2>
-        <div id="logs"></div>
-      </div>
+            <button class="actionBtn greed" data-action="greed" onclick="sendAction('greed', event)">
+              <span class="actionTitle">Katla</span>
+              <span class="actionDesc">%66 şansla x2. Tutmazsa paran kırpılır.</span>
+              <span class="actionCost">Riskli ama medeni</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn mega" data-action="mega" onclick="sendAction('mega', event)">
+              <span class="actionTitle">Mega Pump</span>
+              <span class="actionDesc">%42 şansla x5. Tutmazsa piyasa tokadı.</span>
+              <span class="actionCost">Gerekli: 50 TREEZ</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn steal" data-action="steal" onclick="sendAction('steal', event)">
+              <span class="actionTitle">Cüzdan Çal</span>
+              <span class="actionDesc">Rastgele oyuncudan %23 çalar. Kalkan varsa tokat yersin.</span>
+              <span class="actionCost">Offline oyuncular da hedef</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn tax" data-action="tax" onclick="sendAction('tax', event)">
+              <span class="actionTitle">Lider Vergisi</span>
+              <span class="actionDesc">Liderden %17 alır. Devlet simülasyonu.</span>
+              <span class="actionCost">Lider değilsen iyi</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn rug" data-action="rug" onclick="sendAction('rug', event)">
+              <span class="actionTitle">Rug Pull</span>
+              <span class="actionDesc">%36 şansla herkesi yakar. Tutmazsa sen sıfır.</span>
+              <span class="actionCost">Gerekli: 100 TREEZ</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn throne" data-action="throne" onclick="sendAction('throne', event)">
+              <span class="actionTitle">Taht Soygunu</span>
+              <span class="actionDesc">%38 şansla liderin yarısını alır. Tutmazsa %72 kayıp.</span>
+              <span class="actionCost">Lider avı</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn jackpot" data-action="jackpot" onclick="sendAction('jackpot', event)">
+              <span class="actionTitle">Jackpot</span>
+              <span class="actionDesc">%21 şansla x16. Tutmazsa kasa yine kazanır.</span>
+              <span class="actionCost">Gerekli: 500 TREEZ</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn shield" data-action="shield" onclick="sendAction('shield', event)">
+              <span class="actionTitle">Kalkan</span>
+              <span class="actionDesc">28 saniye çalma, vergi ve saldırılardan korunursun.</span>
+              <span class="actionCost">Bedel: 150K TREEZ</span>
+              <span class="cooldownFill"></span>
+            </button>
+
+            <button class="actionBtn focus" data-action="focus" onclick="sendAction('focus', event)">
+              <span class="actionTitle">Focus Boost</span>
+              <span class="actionDesc">18 saniye TREEZ Kaz geliri x2 olur.</span>
+              <span class="actionCost">Bedel: 220K TREEZ</span>
+              <span class="cooldownFill"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Oyuncular</h2>
+          <div id="players" class="playersGrid"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="panel">
+          <h2>Masa Geçmişi</h2>
+          <div id="logs"></div>
+        </div>
+      </aside>
     </section>
   </main>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="game.js"></script>
+  <script src="game.js?v=big-rework-20260623"></script>
 </body>
 </html>
