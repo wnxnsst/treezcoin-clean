@@ -12,7 +12,7 @@ const io = new Server(server, {
 app.use(express.static("public"));
 
 const ADMIN_KEY = process.env.ADMIN_KEY || "1234";
-const VERSION = "TREEZCOIN 4.0 - Borsa Savaşı";
+const VERSION = "TREEZCOIN";
 const WIN_SCORE = 10_000_000;
 const MAX_PLAYERS = 6;
 const ROUND_MS = 14 * 60 * 1000;
@@ -42,7 +42,9 @@ const BASE_COOLDOWNS = {
   leverage: 26000,
   reputation: 14000,
   useItem: 9000,
-  evadeRegulator: 18000
+  evadeRegulator: 18000,
+  targetPressure: 12500,
+  sectorDamage: 15000
 };
 
 const ROLES = {
@@ -202,7 +204,9 @@ function defaultStats() {
     leaderTime: {},
     sectorTakeovers: {},
     liquidations: {},
-    regulatorHits: {}
+    regulatorHits: {},
+    targetedHits: {},
+    sectorSabotage: {}
   };
 }
 
@@ -396,7 +400,9 @@ function publicStats() {
     leaderTime: statMapToNames(roundStats.leaderTime),
     sectorTakeovers: statMapToNames(roundStats.sectorTakeovers),
     liquidations: statMapToNames(roundStats.liquidations),
-    regulatorHits: statMapToNames(roundStats.regulatorHits)
+    regulatorHits: statMapToNames(roundStats.regulatorHits),
+    targetedHits: statMapToNames(roundStats.targetedHits),
+    sectorSabotage: statMapToNames(roundStats.sectorSabotage)
   };
 }
 
@@ -519,6 +525,8 @@ function cooldownFor(player, type) {
   if (player.role === "thief" && type === "steal") cd *= 0.9;
   if (player.role === "banker" && ["vault", "insurance"].includes(type)) cd *= 0.9;
   if (player.role === "whale" && type === "leverage") cd *= 0.88;
+  if (player.role === "saboteur" && ["targetPressure", "sectorDamage"].includes(type)) cd *= 0.88;
+  if (player.role === "thief" && type === "targetPressure") cd *= 0.92;
   if (ownsSector(player, "exchange") && ["greed", "mega", "leverage"].includes(type)) cd *= 0.92;
   if (ownsSector(player, "bank") && ["vault", "insurance"].includes(type)) cd *= 0.88;
   if (isFinalPhase() && ["tax", "throne"].includes(type)) cd *= 0.82;
@@ -587,6 +595,14 @@ function markLiquidation(player) {
 
 function markRegulatorHit(player) {
   roundStats.regulatorHits[player.token] = (roundStats.regulatorHits[player.token] || 0) + 1;
+}
+
+function markTargetedHit(player) {
+  roundStats.targetedHits[player.token] = (roundStats.targetedHits[player.token] || 0) + 1;
+}
+
+function markSectorSabotage(player) {
+  roundStats.sectorSabotage[player.token] = (roundStats.sectorSabotage[player.token] || 0) + 1;
 }
 
 function finalRiskGainMultiplier() {
@@ -1553,6 +1569,141 @@ function getSocketPlayer(socket) {
   return token ? players.get(token) : null;
 }
 
+
+function resolveTargetPlayer(player, targetId) {
+  const candidates = sortedPlayers().filter((target) => target.token !== player.token && (target.score > 0 || target.vault > 0 || target.online));
+  if (!candidates.length) return null;
+
+  if (targetId && players.has(targetId) && targetId !== player.token) {
+    const direct = players.get(targetId);
+    if (direct && (direct.score > 0 || direct.vault > 0 || direct.online)) return direct;
+  }
+
+  if (targetId === "leader") return candidates[0] || null;
+  if (targetId === "rich") return [...candidates].sort((a, b) => totalWorth(b) - totalWorth(a))[0] || null;
+  if (targetId === "hot") return [...candidates].sort((a, b) => b.heat - a.heat || b.score - a.score)[0] || null;
+
+  return candidates[0] || null;
+}
+
+function resolveSectorId(sectorId) {
+  if (sectorId && sectors[sectorId]) return sectorId;
+  const owned = Object.keys(sectors).filter((id) => sectors[id].owner);
+  if (owned.length) return pick(owned);
+  return pick(Object.keys(sectors));
+}
+
+function doTargetPressure(player, targetId) {
+  const target = resolveTargetPlayer(player, targetId);
+  if (!target) return toast(player, "Baskı yapılacak hedef yok.");
+  if (target.token === player.token) return toast(player, "Kendi şirketine baskı yapma seviyesine henüz düşmedik.");
+
+  const baseCost = 70_000;
+  const cost = player.role === "saboteur" ? 58_000 : player.role === "thief" ? 62_000 : baseCost;
+  if (!charge(player, cost, "Şirkete Baskı")) return;
+
+  addHeat(player, player.role === "saboteur" ? 8 : 11);
+  addReputation(player, -2);
+  markRisk(player);
+
+  let c = 0.56 + player.reputation / 650 - player.heat / 720;
+  if (player.role === "saboteur") c += 0.09;
+  if (player.role === "thief") c += 0.055;
+  if (ownsSector(player, "palace")) c += 0.055;
+  if (ownsSector(player, "darknet")) c += 0.045;
+  if (target.shieldCharges > 0) c -= 0.07;
+  if (target.reputation >= 75) c -= 0.035;
+  if (target.bountyUntil > now()) c += 0.05;
+  c = clamp(c, 0.25, 0.82);
+
+  if (Math.random() < c) {
+    let pressure = 55_000 + target.score * 0.055;
+    pressure *= pvpMultiplier(player, "targetPressure");
+    if (isFinalPhase()) pressure *= 1.08;
+    pressure = Math.min(420_000, pressure);
+    const result = applyLoss(target, pressure, { pvp: true });
+    const bounty = Math.floor(result.removed * 0.22);
+    player.score += bounty;
+    target.heat = clamp(target.heat + 3, 0, 100);
+    markTargetedHit(player);
+    markAttacked(target);
+    markStolen(player, bounty);
+    addLog(`${player.company}, ${target.company} şirketine baskı yaptı: hedef -${format(result.netLoss)} TREEZ, operasyon payı +${format(bounty)} TREEZ.`, true);
+  } else {
+    const lost = applyLoss(player, 45_000 + player.score * 0.025, { risk: true });
+    addLog(`${player.company}, ${target.company} şirketine baskı kuramadı: -${format(lost.netLoss)} TREEZ.`, false);
+  }
+}
+
+function doSectorDamage(player, sectorId) {
+  const id = resolveSectorId(sectorId);
+  const sector = sectors[id];
+  if (!sector) return toast(player, "Sektör bulunamadı.");
+  if (sector.owner === player.token) return toast(player, "Kendi sektörünü sabote etmeye çalışma. Muhasebe zaten yeterince karanlık.");
+
+  const cost = 85_000;
+  if (!charge(player, cost, "Sektöre Zarar Ver")) return;
+
+  addHeat(player, player.role === "saboteur" ? 9 : 13);
+  addReputation(player, -3);
+  markRisk(player);
+
+  const owner = sector.owner ? players.get(sector.owner) : null;
+  let c = 0.54 + player.reputation / 750 - player.heat / 760;
+  if (player.role === "saboteur") c += 0.105;
+  if (ownsSector(player, "palace")) c += 0.055;
+  if (ownsSector(player, "media")) c += 0.025;
+  if (owner?.reputation >= 75) c -= 0.04;
+  c = clamp(c, 0.24, 0.80);
+
+  if (Math.random() < c) {
+    markSectorSabotage(player);
+    if (owner) {
+      const pain = Math.min(360_000, 60_000 + owner.score * 0.045);
+      const result = applyLoss(owner, pain, { pvp: true });
+      markAttacked(owner);
+      if (Math.random() < 0.42) {
+        sector.owner = null;
+        addLog(`${player.company}, ${sector.icon} ${sector.title} sektörünü sabote etti. ${owner.company} -${format(result.netLoss)} TREEZ kaybetti ve sektör boşa düştü.`, true);
+      } else {
+        addLog(`${player.company}, ${sector.icon} ${sector.title} sektörüne zarar verdi. ${owner.company} -${format(result.netLoss)} TREEZ kaybetti ama sektör elinde kaldı.`, true);
+      }
+    } else {
+      sector.heat = clamp((sector.heat || 0) + 18, 0, 100);
+      player.reputation = clamp(player.reputation + 2, 0, 100);
+      addLog(`${player.company}, boşta duran ${sector.icon} ${sector.title} üzerinde piyasa manipülasyonu yaptı. Sektör kırılganlaştı.`, true);
+    }
+  } else {
+    const lost = applyLoss(player, 55_000 + player.score * 0.028, { risk: true });
+    addLog(`${player.company}, ${sector.title} sabotajında yakayı ele verdi: -${format(lost.netLoss)} TREEZ.`, false);
+  }
+}
+
+function handleTargetAction(player, payload = {}) {
+  if (winner) return;
+  if (!requireRole(player)) return;
+  if (player.pendingMilestone || player.pendingDecision) {
+    toast(player, "Önce kararını seç. Sabotajdan önce toplantı bitmeli, ne acayip düzen.");
+    sendDecisionOffer(player);
+    return;
+  }
+
+  const type = String(payload.type || "");
+  if (!["targetPressure", "sectorDamage"].includes(type)) return;
+  if (!canUse(player, type)) return;
+
+  const before = snapshotScores();
+  if (type === "targetPressure") doTargetPressure(player, payload.targetId || "leader");
+  if (type === "sectorDamage") doSectorDamage(player, payload.sectorId || "");
+
+  finishAction(before);
+  checkMilestone(player);
+  checkSecretRivalBonus(player);
+  checkWinner(player);
+  assignSecretRivals();
+  emitState();
+}
+
 function handleAction(player, type) {
   if (winner) return;
   if (!requireRole(player)) return;
@@ -1586,6 +1737,8 @@ function handleAction(player, type) {
   if (type === "reputation") doReputation(player);
   if (type === "useItem") doUseItem(player);
   if (type === "evadeRegulator") doEvadeRegulator(player);
+  if (type === "targetPressure") doTargetPressure(player, "leader");
+  if (type === "sectorDamage") doSectorDamage(player, "");
 
   finishAction(before);
   checkMilestone(player);
@@ -1750,6 +1903,12 @@ io.on("connection", (socket) => {
     const player = getSocketPlayer(socket);
     if (!player) return;
     handleAction(player, type);
+  });
+
+  socket.on("targetAction", (payload) => {
+    const player = getSocketPlayer(socket);
+    if (!player) return;
+    handleTargetAction(player, payload || {});
   });
 
   socket.on("disconnect", () => {
