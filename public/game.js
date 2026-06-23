@@ -4,6 +4,7 @@ const MILLION_EVENT_SCORE = 1_000_000;
 const celebratedMillionPlayers = new Set();
 
 let audioContext = null;
+let currentMilestoneOffer = null;
 
 const cooldowns = {
   mine: 150,
@@ -12,6 +13,7 @@ const cooldowns = {
   steal: 3000,
   tax: 4000,
   rug: 5000,
+  throne: 6000,
   jackpot: 7000
 };
 
@@ -88,6 +90,13 @@ function setName() {
 }
 
 function sendAction(type, event) {
+  if (currentMilestoneOffer) {
+    setStatus("Önce özel seçimini yap.");
+    createFloatingText(window.innerWidth / 2, window.innerHeight / 2, "SEÇİM YAP");
+    playRiskSound();
+    return;
+  }
+
   const button = event.currentTarget;
 
   if (button.classList.contains("cooling")) {
@@ -234,10 +243,11 @@ function updateMoneyBoard(players) {
   players.forEach((player, index) => {
     const rowClass = index === 0 ? "moneyRow leaderRow" : "moneyRow";
     const nameClass = index === 0 ? "fireLeader" : index === 1 ? "rgbRunner" : "normalName";
+    const status = player.online ? "●" : "○";
 
     html += `
       <div class="${rowClass}">
-        <span class="${nameClass}">${index + 1}. ${player.name}</span>
+        <span class="${nameClass}">${index + 1}. ${status} ${player.name}</span>
         <strong>${formatScore(player.score)}</strong>
       </div>
     `;
@@ -270,11 +280,51 @@ function spawnBackgroundCoin() {
 
 setInterval(spawnBackgroundCoin, 450);
 
+function showMilestoneOffer(offer) {
+  currentMilestoneOffer = offer;
+
+  const modal = document.getElementById("milestoneModal");
+  const title = document.getElementById("milestoneTitle");
+  const optionsBox = document.getElementById("milestoneOptions");
+
+  if (!modal || !title || !optionsBox) return;
+
+  title.innerText = `${formatScore(offer.milestone)} TREEZ EŞİĞİ!`;
+  optionsBox.innerHTML = "";
+
+  offer.options.forEach((option) => {
+    const button = document.createElement("button");
+    button.className = "milestoneChoice";
+
+    button.innerHTML = `
+      <strong>${option.title}</strong>
+      <span>${option.desc}</span>
+    `;
+
+    button.onclick = () => {
+      socket.emit("milestoneChoice", option.id);
+      currentMilestoneOffer = null;
+      modal.classList.remove("show");
+      playJackpotSound();
+      createExplosion(window.innerWidth / 2, window.innerHeight / 2);
+    };
+
+    optionsBox.appendChild(button);
+  });
+
+  modal.classList.add("show");
+  playExplosionSound();
+}
+
+socket.on("milestoneOffer", (offer) => {
+  showMilestoneOffer(offer);
+});
+
 socket.on("roomFull", () => {
   document.body.innerHTML = `
     <div style="color:white;text-align:center;margin-top:120px;font-family:Arial">
       <h1>Oda Dolu</h1>
-      <p>Max 6 oyuncu girebilir.</p>
+      <p>Max 6 online oyuncu girebilir.</p>
     </div>
   `;
 });
@@ -288,47 +338,73 @@ socket.on("state", (state) => {
   if (!playersDiv || !logsDiv || !winnerBox || !warningBox) return;
 
   playersDiv.innerHTML = "";
-  logsDiv.innerHTML = "";
-
-  updateMoneyBoard(state.players);
-
-  warningBox.innerHTML = `${state.players.length}/6 oyuncu masada | Hedef: ${formatScore(state.winScore)} TREEZ`;
-
-  if (state.winner) {
-    winnerBox.innerHTML = `Kazanan: ${state.winner}`;
-  } else {
-    winnerBox.innerHTML = "";
-  }
 
   state.players.forEach((player, index) => {
+    const card = document.createElement("div");
+
+    const rankClass =
+      index === 0 ? "leaderCard" :
+      index === 1 ? "secondCard" :
+      "";
+
+    const offlineClass = player.online ? "" : "offlineCard";
+
+    card.className = `player ${rankClass} ${offlineClass}`;
+
+    const nameClass =
+      index === 0 ? "fireLeader" :
+      index === 1 ? "rgbRunner" :
+      "normalName";
+
+    const progress = Math.min((player.score / state.winScore) * 100, 100);
     const gainText = player.lastGain > 0
-      ? `+${formatScore(player.lastGain)} TREEZ`
+      ? `+${formatScore(player.lastGain)}`
       : player.lastGain < 0
-        ? `${formatScore(player.lastGain)} TREEZ`
+        ? `${formatScore(player.lastGain)}`
         : "";
 
-    const nameClass = index === 0 ? "fireLeader" : index === 1 ? "rgbRunner" : "normalName";
-    const cardClass = index === 0 ? "player leaderCard" : index === 1 ? "player secondCard" : "player";
-    const progress = Math.min((player.score / state.winScore) * 100, 100);
+    const statusBadge = player.online
+      ? `<span class="onlineBadge">online</span>`
+      : `<span class="offlineBadge">offline</span>`;
+
+    card.innerHTML = `
+      <div class="${nameClass}">${index + 1}. ${player.name} ${statusBadge}</div>
+      <div class="score">${formatScore(player.score)} TREEZ</div>
+      <div class="gain">${gainText}</div>
+      <div class="progressWrap">
+        <div class="progressFill" style="width:${progress}%"></div>
+      </div>
+    `;
+
+    playersDiv.appendChild(card);
 
     if (player.score >= MILLION_EVENT_SCORE && !celebratedMillionPlayers.has(player.id)) {
       celebratedMillionPlayers.add(player.id);
       triggerMillionEvent(player.name);
     }
 
-    playersDiv.innerHTML += `
-      <div class="${cardClass}">
-        <div class="${nameClass}">${index + 1}. ${player.name}</div>
-        <div class="score">${formatScore(player.score)} TREEZ</div>
-        <div class="gain">${gainText}</div>
-        <div class="progressWrap">
-          <div class="progressFill" style="width:${progress}%"></div>
-        </div>
-      </div>
-    `;
+    if (player.score < MILLION_EVENT_SCORE && celebratedMillionPlayers.has(player.id)) {
+      celebratedMillionPlayers.delete(player.id);
+    }
   });
 
-  state.logs.slice().reverse().forEach((log) => {
-    logsDiv.innerHTML += `<div class="log">${log}</div>`;
+  logsDiv.innerHTML = "";
+
+  [...state.logs].reverse().forEach((log) => {
+    const div = document.createElement("div");
+    div.className = "log";
+    div.innerText = log;
+    logsDiv.appendChild(div);
   });
+
+  updateMoneyBoard(state.players);
+
+  if (state.winner) {
+    winnerBox.innerText = `${state.winner} KAZANDI! Yeni oyun 8 saniye sonra başlar.`;
+  } else {
+    winnerBox.innerText = "";
+  }
+
+  const onlinePlayers = state.players.filter((player) => player.online).length;
+  warningBox.innerText = `Online oyuncu: ${onlinePlayers}/${state.maxPlayers} | 500K ve katlarında özel seçim açılır.`;
 });
