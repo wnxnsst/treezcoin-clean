@@ -57,10 +57,30 @@ function emitState() {
   io.emit("state", getState());
 }
 
+function resetGameAfterWin() {
+  Object.values(players).forEach((player) => {
+    player.score = 0;
+    player.lastGain = 0;
+    player.lastAction = {};
+  });
+
+  winner = null;
+  logs.length = 0;
+
+  addLog("Yeni masa başladı.");
+  emitState();
+}
+
 function checkWinner(player) {
   if (!winner && player.score >= WIN_SCORE) {
     winner = player.name;
     addLog(`${player.name} 10.000.000 TREEZ yaptı ve kazandı!`);
+
+    emitState();
+
+    setTimeout(() => {
+      resetGameAfterWin();
+    }, 8000);
   }
 }
 
