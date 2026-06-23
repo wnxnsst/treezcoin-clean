@@ -202,7 +202,7 @@
    height: calc(100% - 20px);
    display: grid;
    grid-template-columns: 1fr 1fr;
-   grid-template-rows: repeat(9, minmax(0, 1fr));
+   grid-template-rows: repeat(10, minmax(0, 1fr));
    gap: 8px;
   }
   .actionBtn {
@@ -864,15 +864,15 @@
         <div class="opPanelTitle">Hedef Operasyonu</div>
         <div class="opPanelDesc">Şirket seç / sektöre zarar ver</div>
        </div>
-       <select class="opField">
-        <option>Hedef şirket seç (yakında canlı)</option>
-        <option>Lider şirket</option>
-        <option>En zengin şirket</option>
-        <option>En tehlikeli şirket</option>
+       <select id="targetCompanySelect" class="opField">
+        <option value="leader">Lider şirket</option>
        </select>
-       <button class="opMiniBtn" onclick="toast('Bu hedefli sabotaj panelinin gerçek çalışması için server.js + public/game.js update gerekir. İstersen bir sonraki adımda bunu gerçek sistem yapayım.')">Şirkete Baskı</button>
-       <button class="opMiniBtn alt" onclick="toast('Bu bölüm şu an güvenli UI yerleşimi için eklendi. Gerçek hedef-sektör sabotajı için server.js + public/game.js gerekir.')">Sektöre Zarar Ver</button>
-       <div class="opNote">Not: Oyunu bozmadan bu bölümü şimdilik güvenli UI olarak ekledim. Gerçek hedef seçmeli sabotaj sistemi sadece index.html ile çalışmaz.</div>
+       <select id="targetSectorSelect" class="opField">
+        <option value="">Sektör yükleniyor...</option>
+       </select>
+       <button class="opMiniBtn" onclick="sendTargetAction('targetPressure', event)">Şirkete Baskı</button>
+       <button class="opMiniBtn alt" onclick="sendTargetAction('sectorDamage', event)">Sektöre Zarar Ver</button>
+       <div class="opNote">Dengeli sistem: Baskı para basmaz, hedefe zarar verir. Sabotaj sektör sahibini düşürür veya sektörü boşa çıkarır. Isı yükselir, regülatör riski artar.</div>
       </div>
      </div>
     </section>
@@ -919,6 +919,6 @@
  </main>
 
  <script src="/socket.io/socket.io.js"></script>
- <script src="game.js?v=ui-fix-target-panel-1"></script>
+ <script src="game.js?v=full-release-1"></script>
 </body>
 </html>
