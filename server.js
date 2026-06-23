@@ -220,6 +220,7 @@ const COOLDOWNS = {
 
 const players = new Map(); // token -> player
 const sockets = new Map(); // socket.id -> token
+let roundCounter = 0;
 
 let round = createRound();
 
@@ -253,6 +254,8 @@ function cleanText(value, max = 20, fallback = "Player") {
 }
 
 function createRound() {
+  roundCounter += 1;
+  const roundNumber = roundCounter;
   const sectors = {};
   Object.values(SECTOR_DEFS).forEach((sector) => {
     sectors[sector.id] = {
@@ -265,7 +268,10 @@ function createRound() {
 
   return {
     id: uid("round_"),
-    number: (round?.number || 0) + 1,
+    number: roundNumber,
+    market() {
+      return MARKET_EVENTS[this.marketIndex] || MARKET_EVENTS[0];
+    },
     startedAt: now(),
     endsAt: now() + CONFIG.roundSeconds * 1000,
     winner: null,
@@ -276,7 +282,7 @@ function createRound() {
     marketEndsAt: now() + MARKET_EVENTS[0].duration * 1000,
     finalCrisis: null,
     stats: {
-      roundNumber: (round?.number || 0) + 1,
+      roundNumber: roundNumber,
       biggestGain: null,
       biggestLoss: null,
       mostStolen: {},
@@ -483,10 +489,6 @@ function market() {
   return MARKET_EVENTS[round.marketIndex] || MARKET_EVENTS[0];
 }
 
-Object.defineProperty(round, "market", {
-  value: () => MARKET_EVENTS[round.marketIndex] || MARKET_EVENTS[0],
-  enumerable: false
-});
 
 function rotateMarket() {
   if (now() < round.marketEndsAt || round.winner) return;
