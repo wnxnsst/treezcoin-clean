@@ -1,7 +1,7 @@
 {
-  "name": "treezcoin",
-  "version": "1.0.0",
-  "description": "TREEZCOIN multiplayer web game",
+  "name": "treezcoin-big-rework",
+  "version": "2.0.0",
+  "description": "TREEZCOIN big multiplayer rework",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
