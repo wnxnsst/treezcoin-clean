@@ -156,8 +156,9 @@
   .dashboard {
    min-height: 0;
    display: grid;
-   grid-template-columns: 310px minmax(0, 1fr) 330px;
-   gap: 8px;
+   grid-template-columns: 470px minmax(560px, 690px) 310px;
+   justify-content: center;
+   gap: 10px;
   }
 
   .leftDeck, .centerDeck, .rightDeck {
@@ -165,9 +166,9 @@
    display: grid;
    gap: 8px;
   }
-  .leftDeck { grid-template-rows: 178px minmax(0, 1fr); }
+  .leftDeck { grid-template-rows: 220px minmax(0, 1fr); }
   .centerDeck { grid-template-rows: 64px minmax(0, 1fr) 62px; }
-  .rightDeck { grid-template-rows: 178px 172px minmax(0, 1fr); }
+  .rightDeck { grid-template-rows: 195px 165px minmax(0, 1fr); }
 
   .panel { padding: 10px; min-height: 0; overflow: hidden; }
   .panelHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
@@ -177,22 +178,23 @@
   .sectorGrid {
    display: grid;
    grid-template-columns: 1fr 1fr;
-   gap: 6px;
+   grid-template-rows: repeat(3, minmax(0, 1fr));
+   gap: 8px;
    height: calc(100% - 20px);
   }
   .sectorCard {
    min-height: 0;
-   padding: 7px;
-   border-radius: 10px;
+   padding: 10px;
+   border-radius: 12px;
    background: rgba(0,0,0,.28);
    border: 1px solid rgba(255,255,255,.08);
    overflow: hidden;
   }
   .sectorCard.ownedByMe { border-color: rgba(113,255,122,.75); box-shadow: 0 0 16px rgba(113,255,122,.12); }
   .sectorLine { display: flex; align-items: center; gap: 6px; min-width: 0; }
-  .sectorIcon { font-size: 16px; width: 18px; text-align: center; }
-  .sectorTitle { color: #fff7ad; font-size: 11px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sectorOwner { margin-top: 4px; color: var(--green); font-size: 10px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sectorIcon { font-size: 18px; width: 20px; text-align: center; }
+  .sectorTitle { color: #fff7ad; font-size: 13px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sectorOwner { margin-top: 6px; color: var(--green); font-size: 11px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sectorDesc { display: none; }
 
   .actionPanel { min-height: 0; }
@@ -200,31 +202,32 @@
    height: calc(100% - 20px);
    display: grid;
    grid-template-columns: 1fr 1fr;
-   grid-auto-rows: 1fr;
-   gap: 6px;
+   grid-template-rows: repeat(10, minmax(0, 1fr));
+   gap: 8px;
   }
   .actionBtn {
    position: relative;
    min-height: 0;
    border: 1px solid rgba(255,255,255,.10);
-   border-radius: 11px;
+   border-radius: 13px;
    cursor: pointer;
    overflow: hidden;
    color: white;
    text-align: left;
-   padding: 7px 8px;
+   padding: 11px 12px;
    transition: .12s;
    background: #123;
-   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 8px 18px rgba(0,0,0,.20);
+   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 10px 20px rgba(0,0,0,.22);
   }
   .actionBtn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.58)); z-index: 0; }
   .actionBtn:hover { transform: translateY(-1px); filter: brightness(1.14); }
   .actionBtn:active { transform: scale(.98); }
   .actionBtn.cooling { cursor: not-allowed; filter: grayscale(.35) brightness(.70); }
+  .actionIcon { position: relative; z-index: 2; display: block; font-size: 18px; margin-bottom: 6px; line-height: 1; }
   .actionTitle, .actionDesc, .actionCost { position: relative; z-index: 2; display: block; }
-  .actionTitle { font-size: 11.5px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .actionDesc { display: none; }
-  .actionCost { margin-top: 4px; color: rgba(255,255,255,.76); font-size: 9.5px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actionTitle { font-size: 18px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actionDesc { position: relative; z-index: 2; display: block; margin-top: 4px; font-size: 10.5px; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actionCost { margin-top: 5px; color: rgba(255,255,255,.82); font-size: 10.5px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cooldownFill { position: absolute; left: 0; bottom: 0; height: 4px; width: 0%; background: linear-gradient(90deg, var(--gold), var(--green)); box-shadow: 0 0 10px var(--gold); z-index: 3; }
   .mine { background: linear-gradient(135deg, #0f7a3a, #073b1c); }
   .greed { background: linear-gradient(135deg, #79aa11, #244d0b); }
@@ -276,9 +279,12 @@
   .playersGrid {
    height: 100%;
    display: grid;
-   grid-template-columns: repeat(3, minmax(0, 1fr));
-   grid-template-rows: repeat(2, minmax(0, 1fr));
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+   grid-auto-rows: minmax(170px, 1fr);
    gap: 8px;
+   max-width: 760px;
+   margin: 0 auto;
+   align-content: start;
   }
   .player {
    position: relative;
@@ -468,22 +474,22 @@
 
   @media (max-width: 1180px), (max-height: 720px) {
    .appShell { padding: 7px; grid-template-rows: 62px minmax(0, 1fr) 22px; gap: 6px; }
-   .topCommand { grid-template-columns: 210px minmax(0, 1fr) 180px 170px 96px; gap: 6px; }
+   .topCommand { grid-template-columns: 190px minmax(0, 1fr) 170px 160px 100px; gap: 6px; }
    h1 { font-size: 17px; }
    .subtitle { font-size: 9px; }
-   .dashboard { grid-template-columns: 280px minmax(0, 1fr) 300px; gap: 6px; }
+   .dashboard { grid-template-columns: 410px minmax(480px, 1fr) 270px; gap: 6px; }
    .leftDeck, .centerDeck, .rightDeck { gap: 6px; }
-   .leftDeck { grid-template-rows: 152px minmax(0,1fr); }
-   .rightDeck { grid-template-rows: 152px 150px minmax(0, 1fr); }
-   .centerDeck { grid-template-rows: 56px minmax(0,1fr) 52px; }
+   .leftDeck { grid-template-rows: 180px minmax(0,1fr); }
+   .rightDeck { grid-template-rows: 170px 145px minmax(0, 1fr); }
    .panel { padding: 8px; }
-   .actionGrid { gap: 5px; }
-   .actionBtn { padding: 5px 7px; border-radius: 9px; }
-   .actionTitle { font-size: 10.5px; }
-   .actionCost { font-size: 8.8px; }
+   .actionGrid { gap: 6px; }
+   .actionBtn { padding: 7px 8px; border-radius: 10px; }
+   .actionIcon { font-size: 15px; margin-bottom: 4px; }
+   .actionTitle { font-size: 11.5px; }
+   .actionDesc { font-size: 9.4px; }
+   .actionCost { font-size: 9px; }
+   .playersGrid { max-width: 620px; }
    .player { padding: 8px; border-radius: 12px; }
-   .score { margin-top: 6px; }
-   .badgeLine { max-height: 34px; }
    .statLine, .moneyRow { padding: 4px 0; font-size: 10px; }
    .log { padding: 4px 6px; margin-bottom: 4px; }
   }
@@ -615,9 +621,9 @@
 
   .actionBtn {
    display: grid;
-   grid-template-columns: 26px minmax(0, 1fr);
+   grid-template-columns: 34px minmax(0, 1fr);
    grid-template-rows: auto auto auto;
-   column-gap: 7px;
+   column-gap: 10px;
    align-content: center;
    background: linear-gradient(135deg, #1e293b, #0f172a);
    border: 1px solid rgba(148, 163, 184, .15);
@@ -629,8 +635,8 @@
    position: relative;
    z-index: 2;
    grid-row: 1 / 4;
-   width: 24px;
-   height: 24px;
+   width: 30px;
+   height: 30px;
    display: grid;
    place-items: center;
    border-radius: 9px;
@@ -641,9 +647,9 @@
   }
 
   .actionTitle, .actionDesc, .actionCost { grid-column: 2; }
-  .actionTitle { color: #f8fafc; letter-spacing: .1px; }
-  .actionDesc { color: #cbd5e1; opacity: .92; }
-  .actionCost { color: var(--blue); }
+  .actionTitle { color: #f8fafc; letter-spacing: .1px; font-size: 14px; }
+  .actionDesc { color: #cbd5e1; opacity: .92; font-size: 10.5px; }
+  .actionCost { color: var(--blue); font-size: 10.5px; }
 
   .mine { background: linear-gradient(135deg, #0f766e, #134e4a); }
   .greed { background: linear-gradient(135deg, #2563eb, #1e3a8a); }
@@ -781,29 +787,29 @@
     <section class="panel actionPanel">
      <div class="panelHead">
       <div class="panelTitle">Yönetim Hamleleri</div>
-      <div class="panelHint">Tek ekran mod</div>
+      <div class="panelHint">Ana hamleler</div>
      </div>
      <div class="actionGrid">
-      <button class="actionBtn mine" onclick="sendAction('mine', event)"><span class="actionIcon">⛏️</span><span class="actionTitle">TREEZ Kaz</span><span class="actionDesc">Güvenli kazım.</span><span class="actionCost">Ana gelir</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn greed" onclick="sendAction('greed', event)"><span class="actionIcon">📈</span><span class="actionTitle">Katla</span><span class="actionDesc">Orta risk.</span><span class="actionCost">Riskli</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn mega" onclick="sendAction('mega', event)"><span class="actionIcon">🚀</span><span class="actionTitle">Mega Pump</span><span class="actionDesc">Büyük risk.</span><span class="actionCost">80K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)"><span class="actionIcon">🎰</span><span class="actionTitle">Jackpot</span><span class="actionDesc">%15 şans.</span><span class="actionCost">%15 / 180K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn steal" onclick="sendAction('steal', event)"><span class="actionIcon">🕵️</span><span class="actionTitle">Cüzdan Çal</span><span class="actionDesc">PvP.</span><span class="actionCost">Hedef al</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn tax" onclick="sendAction('tax', event)"><span class="actionIcon">🏛️</span><span class="actionTitle">Lider Vergisi</span><span class="actionDesc">Liderden kes.</span><span class="actionCost">Herkese bölüşür</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn throne" onclick="sendAction('throne', event)"><span class="actionIcon">👑</span><span class="actionTitle">Taht Soygunu</span><span class="actionDesc">Lider avı.</span><span class="actionCost">Anti-lider</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn rug" onclick="sendAction('rug', event)"><span class="actionIcon">💣</span><span class="actionTitle">Rug Pull</span><span class="actionDesc">Kaos.</span><span class="actionCost">120K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn shield" onclick="sendAction('shield', event)"><span class="actionIcon">🛡️</span><span class="actionTitle">Kalkan</span><span class="actionDesc">Savunma.</span><span class="actionCost">50K</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn riskScan" onclick="sendAction('riskScan', event)"><span class="actionIcon">📊</span><span class="actionTitle">Risk Analizi</span><span class="actionDesc">Ceza azaltır.</span><span class="actionCost">35K</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn vault" onclick="sendAction('vault', event)"><span class="actionIcon">🏦</span><span class="actionTitle">Kasaya Koy</span><span class="actionDesc">Koruma.</span><span class="actionCost">Skordan ayırır</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn insurance" onclick="sendAction('insurance', event)"><span class="actionIcon">🧾</span><span class="actionTitle">Sigorta</span><span class="actionDesc">Kayıp telafi.</span><span class="actionCost">Koruma</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn sector" onclick="sendAction('sector', event)"><span class="actionIcon">🧭</span><span class="actionTitle">Sektör Al</span><span class="actionDesc">Harita kontrol.</span><span class="actionCost">Market kontrol</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn develop" onclick="sendAction('develop', event)"><span class="actionIcon">🏢</span><span class="actionTitle">Şirket Geliştir</span><span class="actionDesc">Yol seç.</span><span class="actionCost">Strateji</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn leverage" onclick="sendAction('leverage', event)"><span class="actionIcon">⚡</span><span class="actionTitle">Kaldıraç</span><span class="actionDesc">2x / likidasyon.</span><span class="actionCost">250K+</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn reputation" onclick="sendAction('reputation', event)"><span class="actionIcon">🤝</span><span class="actionTitle">İtibar Yönet</span><span class="actionDesc">Isı düşür.</span><span class="actionCost">Para yak</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn blackMarket" onclick="sendAction('blackMarket', event)"><span class="actionIcon">🕶️</span><span class="actionTitle">Kara Borsa</span><span class="actionDesc">Eşya al.</span><span class="actionCost">120K / max 2</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn useItem" onclick="sendAction('useItem', event)"><span class="actionIcon">🧰</span><span class="actionTitle">Eşya Kullan</span><span class="actionDesc">Envanter.</span><span class="actionCost">Tek kullanımlık</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn evadeRegulator" onclick="sendAction('evadeRegulator', event)"><span class="actionIcon">🛂</span><span class="actionTitle">Reg. Atlat</span><span class="actionDesc">Baskı azalt.</span><span class="actionCost">Isı kontrol</span><span class="cooldownFill"></span></button>
-      <button class="actionBtn rolePower" onclick="sendAction('rolePower', event)"><span class="actionIcon">💎</span><span class="actionTitle">Rol Gücü</span><span class="actionDesc">Özel güç.</span><span class="actionCost">Uzun cd</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn mine" onclick="sendAction('mine', event)"><span class="actionIcon">⛏️</span><span class="actionTitle">TREEZ Kaz</span><span class="actionDesc">Güvenli kazım yap.</span><span class="actionCost">Ana gelir</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn greed" onclick="sendAction('greed', event)"><span class="actionIcon">📈</span><span class="actionTitle">Katla</span><span class="actionDesc">Orta riskli büyüme.</span><span class="actionCost">Riskli</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn mega" onclick="sendAction('mega', event)"><span class="actionIcon">🚀</span><span class="actionTitle">Mega Pump</span><span class="actionDesc">Yüksek riskli hamle.</span><span class="actionCost">80K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)"><span class="actionIcon">🎰</span><span class="actionTitle">Jackpot</span><span class="actionDesc">%15 şans hamlesi.</span><span class="actionCost">180K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn steal" onclick="sendAction('steal', event)"><span class="actionIcon">🕵️</span><span class="actionTitle">Cüzdan Çal</span><span class="actionDesc">Rastgele hedef soy.</span><span class="actionCost">PvP</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn tax" onclick="sendAction('tax', event)"><span class="actionIcon">🏛️</span><span class="actionTitle">Lider Vergisi</span><span class="actionDesc">Liderden kes, dağıt.</span><span class="actionCost">Herkese bölüşür</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn throne" onclick="sendAction('throne', event)"><span class="actionIcon">👑</span><span class="actionTitle">Taht Soygunu</span><span class="actionDesc">Lideri hedef al.</span><span class="actionCost">Anti-lider</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn rug" onclick="sendAction('rug', event)"><span class="actionIcon">💣</span><span class="actionTitle">Rug Pull</span><span class="actionDesc">Masayı sars.</span><span class="actionCost">120K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn shield" onclick="sendAction('shield', event)"><span class="actionIcon">🛡️</span><span class="actionTitle">Kalkan</span><span class="actionDesc">Saldırıya karşı koru.</span><span class="actionCost">50K</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn riskScan" onclick="sendAction('riskScan', event)"><span class="actionIcon">📊</span><span class="actionTitle">Risk Analizi</span><span class="actionDesc">Ceza düşürür.</span><span class="actionCost">35K</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn vault" onclick="sendAction('vault', event)"><span class="actionIcon">🏦</span><span class="actionTitle">Kasaya Koy</span><span class="actionDesc">Parayı koru.</span><span class="actionCost">Skordan ayırır</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn insurance" onclick="sendAction('insurance', event)"><span class="actionIcon">🧾</span><span class="actionTitle">Sigorta</span><span class="actionDesc">Büyük kaybı yumuşat.</span><span class="actionCost">Koruma</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn sector" onclick="sendAction('sector', event)"><span class="actionIcon">🧭</span><span class="actionTitle">Sektör Al</span><span class="actionDesc">Market bölgesi kap.</span><span class="actionCost">Piyasa kontrolü</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn develop" onclick="sendAction('develop', event)"><span class="actionIcon">🏢</span><span class="actionTitle">Şirket Geliştir</span><span class="actionDesc">Şirket yolunu büyüt.</span><span class="actionCost">Strateji</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn leverage" onclick="sendAction('leverage', event)"><span class="actionIcon">⚡</span><span class="actionTitle">Kaldıraç</span><span class="actionDesc">2x risk aç.</span><span class="actionCost">250K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn reputation" onclick="sendAction('reputation', event)"><span class="actionIcon">🤝</span><span class="actionTitle">İtibar Yönet</span><span class="actionDesc">Isıyı düşür.</span><span class="actionCost">Para yak</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn blackMarket" onclick="sendAction('blackMarket', event)"><span class="actionIcon">🕶️</span><span class="actionTitle">Kara Borsa</span><span class="actionDesc">Rastgele araç al.</span><span class="actionCost">120K / max 2</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn useItem" onclick="sendAction('useItem', event)"><span class="actionIcon">🧰</span><span class="actionTitle">Eşya Kullan</span><span class="actionDesc">Envanterden kullan.</span><span class="actionCost">Tek kullanımlık</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn evadeRegulator" onclick="sendAction('evadeRegulator', event)"><span class="actionIcon">🛂</span><span class="actionTitle">Reg. Atlat</span><span class="actionDesc">Baskıyı azalt.</span><span class="actionCost">Isı kontrol</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn rolePower" onclick="sendAction('rolePower', event)"><span class="actionIcon">💎</span><span class="actionTitle">Rol Gücü</span><span class="actionDesc">Role özel yetenek.</span><span class="actionCost">Uzun cooldown</span><span class="cooldownFill"></span></button>
      </div>
     </section>
    </aside>
@@ -820,7 +826,7 @@
     <section class="panel" style="position:relative;">
      <div class="panelHead">
       <div class="panelTitle">Şirketler Masası</div>
-      <div class="panelHint">Max 6 oyuncu, 2x3 yönetim görünümü</div>
+      <div class="panelHint">Daha kompakt şirket görünümü</div>
      </div>
      <div id="winnerBox" class="winner"></div>
      <div id="players" class="playersGrid"></div>
@@ -849,6 +855,6 @@
  </main>
 
  <script src="/socket.io/socket.io.js"></script>
- <script src="game.js?v=premium-safe-1"></script>
+ <script src="game.js?v=ui-fix-all-actions-1"></script>
 </body>
 </html>
