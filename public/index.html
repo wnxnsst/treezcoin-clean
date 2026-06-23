@@ -773,6 +773,429 @@
    box-shadow: 0 12px 28px rgba(2, 6, 23, .36);
   }
 
+ 
+  /* FINAL RELEASE UI POLISH - okunurluk kilidi */
+  .appShell {
+   padding: 8px;
+   grid-template-rows: 68px minmax(0, 1fr) 24px;
+   gap: 7px;
+  }
+
+  .dashboard {
+   grid-template-columns: minmax(650px, 720px) minmax(480px, 560px) 300px;
+   justify-content: center;
+   gap: 10px;
+  }
+
+  .leftDeck {
+   grid-template-rows: 230px minmax(0, 1fr);
+   gap: 9px;
+  }
+
+  .centerDeck {
+   grid-template-rows: 60px minmax(0, 1fr) 58px;
+   gap: 8px;
+  }
+
+  .rightDeck {
+   grid-template-rows: 190px 155px minmax(0, 1fr);
+   gap: 8px;
+  }
+
+  .panel {
+   padding: 9px;
+  }
+
+  .panelHead {
+   margin-bottom: 7px;
+  }
+
+  .sectorGrid {
+   grid-template-columns: repeat(2, minmax(0, 1fr));
+   grid-template-rows: repeat(3, minmax(0, 1fr));
+   gap: 8px;
+   height: calc(100% - 24px);
+  }
+
+  .sectorCard {
+   padding: 11px 12px;
+   border-radius: 13px;
+  }
+
+  .sectorIcon {
+   font-size: 20px;
+   width: 24px;
+  }
+
+  .sectorTitle {
+   font-size: 14px;
+   line-height: 1.1;
+  }
+
+  .sectorOwner {
+   font-size: 11px;
+   margin-top: 6px;
+  }
+
+  .actionGrid {
+   height: calc(100% - 24px);
+   display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   grid-auto-rows: minmax(56px, 1fr);
+   gap: 8px;
+   align-content: stretch;
+  }
+
+  .actionBtn {
+   display: grid;
+   grid-template-columns: 32px minmax(0, 1fr);
+   grid-template-rows: auto auto;
+   column-gap: 9px;
+   align-content: center;
+   padding: 9px 10px;
+   min-height: 0;
+   border-radius: 12px;
+  }
+
+  .actionIcon {
+   grid-row: 1 / 3;
+   width: 30px;
+   height: 30px;
+   font-size: 17px;
+   margin: 0;
+   align-self: center;
+  }
+
+  .actionTitle {
+   grid-column: 2;
+   font-size: 13px;
+   line-height: 1.05;
+   color: #f8fafc;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .actionDesc {
+   display: none !important;
+  }
+
+  .actionCost {
+   grid-column: 2;
+   margin-top: 4px;
+   font-size: 10.5px;
+   line-height: 1;
+   color: #38bdf8;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .opPanel {
+   grid-column: 1 / -1;
+   grid-row: span 2;
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 138px 138px;
+   grid-template-rows: auto 36px auto;
+   gap: 7px;
+   padding: 10px;
+   min-height: 105px;
+   border-radius: 14px;
+  }
+
+  .opPanelHead {
+   grid-column: 1 / -1;
+  }
+
+  .opPanelTitle {
+   font-size: 14px;
+  }
+
+  .opPanelDesc {
+   font-size: 10px;
+  }
+
+  .opField {
+   grid-column: auto;
+   min-width: 0;
+   height: 36px;
+   padding: 8px 9px;
+   font-size: 11px;
+  }
+
+  .opMiniBtn {
+   height: 36px;
+   padding: 8px 8px;
+   font-size: 11px;
+   white-space: nowrap;
+  }
+
+  .opNote {
+   grid-column: 1 / -1;
+   font-size: 10px;
+   line-height: 1.25;
+   color: #fbbf24;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .playersGrid {
+   height: 100%;
+   display: grid;
+   grid-template-columns: 1fr;
+   grid-auto-rows: minmax(118px, 128px);
+   gap: 8px;
+   max-width: 100%;
+   margin: 0;
+   align-content: start;
+  }
+
+  .player {
+   padding: 9px 10px;
+   border-radius: 14px;
+   min-height: 0;
+  }
+
+  .playerHeader {
+   display: flex;
+   align-items: flex-start;
+   justify-content: space-between;
+   gap: 8px;
+  }
+
+  .playerName {
+   font-size: 14px;
+   line-height: 1.05;
+   min-width: 0;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .companyName {
+   font-size: 9.5px;
+   margin-top: 3px;
+  }
+
+  .badgeLine {
+   display: flex;
+   gap: 4px;
+   flex-wrap: nowrap;
+   overflow: hidden;
+   margin-top: 5px;
+   max-height: 18px;
+  }
+
+  .badge {
+   font-size: 8.5px;
+   padding: 3px 5px;
+   flex: 0 0 auto;
+  }
+
+  .playerMoneyRow {
+   display: flex;
+   align-items: baseline;
+   justify-content: space-between;
+   gap: 8px;
+   margin-top: 6px;
+  }
+
+  .score {
+   margin: 0;
+   font-size: clamp(18px, 1.35vw, 22px);
+   line-height: 1;
+  }
+
+  .vaultText {
+   margin: 0;
+   font-size: 9px;
+   color: #fbbf24;
+   flex: 0 0 auto;
+  }
+
+  .playerMetaRow {
+   display: grid;
+   grid-template-columns: 1fr auto auto;
+   gap: 8px;
+   margin-top: 5px;
+   color: #94a3b8;
+   font-size: 9.5px;
+   font-weight: 900;
+   white-space: nowrap;
+   overflow: hidden;
+  }
+
+  .playerMetaRow span {
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  .compactBars {
+   display: grid;
+   grid-template-columns: 1.4fr 1fr 1fr;
+   gap: 6px;
+   margin-top: 6px;
+  }
+
+  .barLine.compact .barLabel {
+   font-size: 8.5px;
+  }
+
+  .barLine.compact .barWrap {
+   height: 5px;
+   margin-top: 2px;
+  }
+
+  .gain {
+   right: 10px;
+   bottom: 7px;
+   font-size: 11px;
+  }
+
+  .bottomTicker {
+   font-size: 10px;
+  }
+
+  .tickerBox {
+   min-width: 0;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+
+  @media (max-width: 1500px), (max-height: 760px) {
+   .appShell {
+    padding: 6px;
+    grid-template-rows: 60px minmax(0, 1fr) 22px;
+    gap: 6px;
+   }
+
+   .topCommand {
+    grid-template-columns: 185px minmax(0, 1fr) 165px 155px 100px;
+    gap: 6px;
+   }
+
+   .dashboard {
+    grid-template-columns: minmax(540px, 590px) minmax(410px, 1fr) 255px;
+    gap: 6px;
+   }
+
+   .leftDeck {
+    grid-template-rows: 200px minmax(0, 1fr);
+    gap: 6px;
+   }
+
+   .rightDeck {
+    grid-template-rows: 160px 140px minmax(0, 1fr);
+    gap: 6px;
+   }
+
+   .centerDeck {
+    grid-template-rows: 54px minmax(0, 1fr) 50px;
+    gap: 6px;
+   }
+
+   .sectorGrid {
+    gap: 6px;
+   }
+
+   .sectorCard {
+    padding: 9px 10px;
+   }
+
+   .sectorTitle {
+    font-size: 12.5px;
+   }
+
+   .sectorOwner {
+    font-size: 10px;
+   }
+
+   .actionGrid {
+    gap: 6px;
+    grid-auto-rows: minmax(50px, 1fr);
+   }
+
+   .actionBtn {
+    grid-template-columns: 28px minmax(0, 1fr);
+    padding: 7px 8px;
+    column-gap: 7px;
+    border-radius: 10px;
+   }
+
+   .actionIcon {
+    width: 26px;
+    height: 26px;
+    font-size: 15px;
+   }
+
+   .actionTitle {
+    font-size: 11.2px;
+   }
+
+   .actionCost {
+    font-size: 9.2px;
+   }
+
+   .opPanel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 116px 116px;
+    min-height: 92px;
+    padding: 8px;
+    gap: 6px;
+   }
+
+   .opField,
+   .opMiniBtn {
+    height: 32px;
+    font-size: 9.5px;
+    padding: 6px 7px;
+   }
+
+   .opPanelTitle {
+    font-size: 12px;
+   }
+
+   .opPanelDesc,
+   .opNote {
+    font-size: 9px;
+   }
+
+   .playersGrid {
+    grid-auto-rows: minmax(104px, 116px);
+   }
+
+   .player {
+    padding: 8px;
+   }
+
+   .playerName {
+    font-size: 12.5px;
+   }
+
+   .companyName {
+    font-size: 8.5px;
+   }
+
+   .score {
+    font-size: 17px;
+   }
+
+   .badge {
+    font-size: 7.8px;
+    padding: 2px 4px;
+   }
+
+   .playerMetaRow {
+    font-size: 8.5px;
+    gap: 5px;
+   }
+
+   .compactBars {
+    gap: 4px;
+    margin-top: 4px;
+   }
+  }
+
  </style>
 </head>
 <body>
@@ -919,6 +1342,6 @@
  </main>
 
  <script src="/socket.io/socket.io.js"></script>
- <script src="game.js?v=full-release-1"></script>
+ <script src="game.js?v=final-polish-1"></script>
 </body>
 </html>
