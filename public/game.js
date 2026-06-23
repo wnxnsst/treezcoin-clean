@@ -35,7 +35,9 @@ const cooldowns = {
   leverage: 26000,
   reputation: 14000,
   useItem: 9000,
-  evadeRegulator: 18000
+  evadeRegulator: 18000,
+  targetPressure: 12500,
+  sectorDamage: 15000
 };
 
 function el(id) {
@@ -228,7 +230,7 @@ function sendAction(type, event) {
     createFloatingText(x, y, "JACKPOT");
   } else if (["rug", "leverage", "sector", "rolePower"].includes(type)) {
     playExplosionSound();
-    createFloatingText(x, y, "4.0");
+    createFloatingText(x, y, "HAMLE");
   } else {
     playRiskSound();
     createFloatingText(x, y, "RISK");
@@ -236,6 +238,54 @@ function sendAction(type, event) {
 
   createParticles(x, y);
   if (button) startCooldown(button, cooldowns[type] || 900);
+}
+
+function selectedTargetId() {
+  return el("targetCompanySelect")?.value || "leader";
+}
+
+function selectedSectorId() {
+  return el("targetSectorSelect")?.value || "";
+}
+
+function sendTargetAction(type, event) {
+  if (!myRole) {
+    toast("Önce rol seç.");
+    showRoleModal();
+    return;
+  }
+  if (currentDecision) {
+    toast("Önce şirket kararını seç.");
+    playRiskSound();
+    return;
+  }
+
+  const button = event?.currentTarget;
+  if (button && button.classList.contains("cooling")) return;
+
+  const payload = {
+    type,
+    targetId: selectedTargetId(),
+    sectorId: selectedSectorId()
+  };
+
+  if (type === "targetPressure" && !payload.targetId) {
+    toast("Önce hedef şirket seç.");
+    return;
+  }
+  if (type === "sectorDamage" && !payload.sectorId) {
+    toast("Önce hedef sektör seç.");
+    return;
+  }
+
+  socket.emit("targetAction", payload);
+
+  const x = event?.clientX || window.innerWidth / 2;
+  const y = event?.clientY || window.innerHeight / 2;
+  playExplosionSound();
+  createFloatingText(x, y, type === "targetPressure" ? "BASKI" : "SABOTAJ");
+  createParticles(x, y, 24);
+  if (button) startCooldown(button, cooldowns[type] || 12000);
 }
 
 function startCooldown(button, duration) {
@@ -324,7 +374,7 @@ function spawnBackgroundCoin() {
   if (!layer) return;
   const coin = document.createElement("div");
   coin.className = "bgCoin";
-  coin.innerText = Math.random() < 0.12 ? "4" : "T";
+  coin.innerText = "T";
   const size = 18 + Math.random() * 24;
   coin.style.width = `${size}px`;
   coin.style.height = `${size}px`;
@@ -544,6 +594,8 @@ function renderStats(stats) {
     <div class="statLine"><span>Sektör fatihi</span><b>${sector ? `${escapeHtml(sector.name)} ${sector.value}` : "-"}</b></div>
     <div class="statLine"><span>Likidasyon</span><b>${liq ? `${escapeHtml(liq.name)} ${liq.value}` : "-"}</b></div>
     <div class="statLine"><span>Regülatör kurbanı</span><b>${reg ? `${escapeHtml(reg.name)} ${reg.value}` : "-"}</b></div>
+    <div class="statLine"><span>Hedef baskısı</span><b>${topEntry(stats?.targetedHits) ? `${escapeHtml(topEntry(stats.targetedHits).name)} ${topEntry(stats.targetedHits).value}` : "-"}</b></div>
+    <div class="statLine"><span>Sektör sabotajı</span><b>${topEntry(stats?.sectorSabotage) ? `${escapeHtml(topEntry(stats.sectorSabotage).name)} ${topEntry(stats.sectorSabotage).value}` : "-"}</b></div>
   `;
 }
 
@@ -607,11 +659,39 @@ function renderTop(state) {
     roundBox.innerText = `${formatTime(state.timeLeft)} | Online ${state.onlineCount}/${state.maxPlayers}`;
   }
   if (warningBox) {
-    const finalText = state.finalCrisis ? `Final Krizi: ${state.finalCrisis.title}` : state.finalPhase ? "Final krizi yaklaşıyor" : "4.0 Borsa Savaşı aktif";
+    const finalText = state.finalCrisis ? `Final Krizi: ${state.finalCrisis.title}` : state.finalPhase ? "Final krizi yaklaşıyor" : "TREEZCOIN aktif";
     warningBox.innerText = `${finalText} | Jackpot %15 | Kalkan 50K | TREEZ Kaz logda yok | Lider hedef olur`;
   }
   if (winnerBox) {
     winnerBox.innerText = state.winner ? `${state.winner} KAZANDI! Yeni masa birazdan başlar.` : "";
+  }
+}
+
+
+function renderTargetControls(state) {
+  const targetSelect = el("targetCompanySelect");
+  const sectorSelect = el("targetSectorSelect");
+
+  if (targetSelect) {
+    const current = targetSelect.value;
+    const players = (state.players || []).filter((player) => player.id !== myPlayerId);
+    let html = `<option value="leader">Lider şirket</option><option value="rich">En zengin şirket</option><option value="hot">En yüksek ısı</option>`;
+    players.forEach((player) => {
+      const money = player.score === null || player.score === undefined ? "GİZLİ" : formatScore(player.score);
+      html += `<option value="${escapeHtml(player.id)}">${escapeHtml(player.company || player.name)} • ${money}</option>`;
+    });
+    targetSelect.innerHTML = html;
+    if ([...targetSelect.options].some((opt) => opt.value === current)) targetSelect.value = current;
+  }
+
+  if (sectorSelect) {
+    const current = sectorSelect.value;
+    let html = "";
+    (state.sectors || []).forEach((sector) => {
+      html += `<option value="${escapeHtml(sector.id)}">${escapeHtml(sector.icon)} ${escapeHtml(sector.title)} • ${escapeHtml(sector.ownerName || "Boş")}</option>`;
+    });
+    sectorSelect.innerHTML = html;
+    if ([...sectorSelect.options].some((opt) => opt.value === current)) sectorSelect.value = current;
   }
 }
 
@@ -624,6 +704,7 @@ socket.on("state", (state) => {
   renderStats(state.roundStats || {});
   renderMyPanel(state);
   renderLogs(state.logs || []);
+  renderTargetControls(state);
 });
 
 window.addEventListener("load", () => {
