@@ -460,12 +460,25 @@ function showMilestoneOffer(offer) {
   playExplosionSound();
 }
 
-socket.on("connect", () => {
-  setStatus("Online bağlandı.");
+function sendHello() {
   socket.emit("hello", {
     token: myToken,
     name: myName
   });
+}
+
+socket.on("connect", () => {
+  setStatus("Online bağlandı.");
+
+  sendHello();
+
+  setTimeout(() => {
+    sendHello();
+  }, 400);
+
+  setTimeout(() => {
+    sendHello();
+  }, 1200);
 });
 
 socket.on("disconnect", () => {
