@@ -1028,6 +1028,100 @@
    .opPanelHead, .opNote { grid-column: 1; }
    .player { min-height: 120px; }
   }
+ 
+  /* SEKTÖR AL BUTONU GÖRÜNÜRLÜK FİX */
+  .leftDeck {
+   grid-template-rows: 270px minmax(0, 1fr) !important;
+  }
+
+  .sectorGrid {
+   height: calc(100% - 24px) !important;
+   gap: 7px !important;
+  }
+
+  .sectorCard {
+   position: relative !important;
+   display: flex !important;
+   flex-direction: column !important;
+   justify-content: space-between !important;
+   padding: 9px 10px !important;
+   min-height: 0 !important;
+   overflow: hidden !important;
+  }
+
+  .sectorTop {
+   flex: 0 0 auto !important;
+  }
+
+  .sectorTitle {
+   font-size: 12px !important;
+  }
+
+  .sectorOwner {
+   font-size: 9.5px !important;
+   margin-top: 2px !important;
+  }
+
+  .sectorStability,
+  .sectorBar {
+   display: none !important;
+  }
+
+  .sectorActions {
+   display: grid !important;
+   grid-template-columns: 1fr 1fr !important;
+   gap: 6px !important;
+   margin-top: 6px !important;
+   flex: 0 0 auto !important;
+  }
+
+  .sectorActions button {
+   display: block !important;
+   height: 26px !important;
+   min-height: 26px !important;
+   line-height: 1 !important;
+   font-size: 10px !important;
+   font-weight: 1000 !important;
+   padding: 0 6px !important;
+   border-radius: 8px !important;
+   opacity: 1 !important;
+   visibility: visible !important;
+  }
+
+  .sectorActions button:disabled {
+   opacity: .38 !important;
+  }
+
+  @media (max-width: 1200px), (max-height: 720px) {
+   .leftDeck {
+    grid-template-rows: 230px minmax(0, 1fr) !important;
+   }
+
+   .sectorCard {
+    padding: 7px 8px !important;
+   }
+
+   .sectorIcon {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 14px !important;
+   }
+
+   .sectorTitle {
+    font-size: 10.5px !important;
+   }
+
+   .sectorOwner {
+    display: none !important;
+   }
+
+   .sectorActions button {
+    height: 23px !important;
+    min-height: 23px !important;
+    font-size: 8.5px !important;
+   }
+  }
+
  </style>
 </head>
 <body>
@@ -1173,6 +1267,6 @@
  </main>
 
  <script src="/socket.io/socket.io.js"></script>
- <script src="game.js?v=full-fix-release-1"></script>
+ <script src="game.js?v=sector-button-fix-1"></script>
 </body>
 </html>
