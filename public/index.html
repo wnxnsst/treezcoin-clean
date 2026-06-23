@@ -1,297 +1,854 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TREEZCOIN 4.0</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      color: white;
-      overflow-x: hidden;
-      background:
-        radial-gradient(circle at 20% 0%, rgba(16, 185, 129, 0.26), transparent 30%),
-        radial-gradient(circle at 82% 8%, rgba(250, 204, 21, 0.18), transparent 27%),
-        radial-gradient(circle at center, rgba(5, 96, 45, 0.70), transparent 32%),
-        repeating-radial-gradient(circle at center, #0f3d20 0 18px, #07170c 18px 36px);
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      background:
-        linear-gradient(45deg, rgba(250, 204, 21, 0.08), transparent 28%, rgba(239, 68, 68, 0.09)),
-        radial-gradient(circle at center, transparent 0 25%, rgba(0,0,0,0.68) 78%);
-    }
-    button, input { font-family: inherit; }
-    #coinRain { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; }
-    .bgCoin {
-      position: absolute; top: -60px; border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #fff7a8, #facc15 44%, #b45309 100%);
-      color: #3b2400; font-weight: 900; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 14px rgba(250, 204, 21, 0.75); animation: coinFall linear forwards; opacity: .72;
-    }
-    @keyframes coinFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
-    .container { position: relative; z-index: 2; max-width: 1480px; margin: auto; padding: 18px; }
-    .topbar { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: center; margin-bottom: 12px; }
-    .hud, .miniPanel, .panel, .moneyBoard, .statsBox, .marketMap, .myCompanyPanel {
-      background: rgba(2, 12, 6, 0.84);
-      border: 1px solid rgba(250, 204, 21, 0.28);
-      border-radius: 18px;
-      box-shadow: 0 0 24px rgba(0, 255, 80, 0.10), inset 0 0 22px rgba(0,0,0,0.32);
-      backdrop-filter: blur(8px);
-    }
-    .hud { padding: 12px; min-height: 72px; }
-    .hudTitle { font-size: 12px; color: #facc15; font-weight: 900; margin-bottom: 4px; letter-spacing: 1px; }
-    .hudValue { font-size: 18px; font-weight: 900; color: #eaffd7; }
-    h1 {
-      font-size: 56px; margin: 0; text-align: center; letter-spacing: 4px; color: #7cff4f;
-      text-shadow: 0 0 8px #7cff4f, 0 0 22px #39ff14, 0 0 50px #00ff88;
-      animation: titlePulse 1.3s infinite alternate;
-    }
-    @keyframes titlePulse { from { transform: scale(1); filter: brightness(1); } to { transform: scale(1.02); filter: brightness(1.32); } }
-    .subtitle { text-align: center; color: #eaffd7; margin-top: 4px; font-size: 15px; }
-    .status { text-align: center; margin: 8px auto 14px; display: block; width: max-content; padding: 8px 14px; border-radius: 999px; background: rgba(0,0,0,.45); border: 1px solid rgba(250,204,21,.35); color:#facc15; font-weight: bold; }
-    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
-    .table {
-      border-radius: 32px; padding: 16px;
-      background: radial-gradient(circle at center, rgba(11,72,31,.96), rgba(2,18,7,.98)), linear-gradient(90deg, #5c2e10, #2a1306);
-      border: 10px solid rgba(85,42,14,.95);
-      box-shadow: inset 0 0 50px rgba(0,0,0,.62), 0 0 40px rgba(0,0,0,.55);
-    }
-    .panel { padding: 15px; margin-top: 14px; }
-    .nameRow { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; }
-    input { padding: 13px; font-size: 15px; border-radius: 12px; border: 2px solid #facc15; outline: none; background: #051005; color: white; text-align: center; min-width: 0; }
-    .saveName { padding: 13px 18px; border-radius: 12px; border: none; cursor: pointer; font-weight: 900; background: linear-gradient(135deg, #facc15, #a16207); color: #140d00; }
-    .sectionTitle { margin: 0 0 10px; color: #facc15; font-size: 18px; }
-    .marketMap { padding: 14px; margin-top: 14px; }
-    .sectorGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 10px; }
-    .sectorCard { border-radius: 16px; padding: 12px; background: rgba(0,0,0,.32); border: 1px solid rgba(255,255,255,.12); position: relative; overflow: hidden; min-height: 106px; }
-    .sectorCard.ownedByMe { border-color: rgba(34,197,94,.85); box-shadow: 0 0 18px rgba(34,197,94,.18); }
-    .sectorIcon { font-size: 24px; }
-    .sectorTitle { font-weight: 900; color: #fff7ad; margin-top: 3px; }
-    .sectorOwner { color: #7cff4f; font-weight: 800; margin-top: 6px; font-size: 13px; }
-    .sectorDesc { color: #d8ffd1; font-size: 12px; margin-top: 5px; line-height: 1.25; }
-    .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 11px; }
-    .actionGroupTitle { margin: 14px 0 9px; color: #facc15; font-weight: 900; letter-spacing: .8px; font-size: 13px; }
-    .actionBtn { position: relative; min-height: 108px; border: none; border-radius: 18px; cursor: pointer; overflow: hidden; color: white; text-align: left; padding: 12px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 12px 26px rgba(0,0,0,.32); transition: .14s; }
-    .actionBtn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.72)); z-index: 0; }
-    .actionBtn:hover { transform: translateY(-3px) scale(1.022); filter: brightness(1.14); }
-    .actionBtn:active { transform: scale(.97); }
-    .actionBtn.cooling { cursor: not-allowed; filter: grayscale(.32) brightness(.72); }
-    .mine { background: linear-gradient(135deg, #0f7a3a, #073b1c); }
-    .greed { background: linear-gradient(135deg, #87c900, #315f05); }
-    .mega { background: linear-gradient(135deg, #0095ff, #062b70); }
-    .steal { background: linear-gradient(135deg, #7c3aed, #2e1065); }
-    .tax { background: linear-gradient(135deg, #f59e0b, #7c2d12); }
-    .rug { background: linear-gradient(135deg, #ef4444, #450a0a); }
-    .throne { background: linear-gradient(135deg, #facc15, #991b1b); }
-    .jackpot { background: linear-gradient(135deg, #ff00cc, #312e81); }
-    .shield { background: linear-gradient(135deg, #14b8a6, #064e3b); }
-    .riskScan { background: linear-gradient(135deg, #38bdf8, #1e3a8a); }
-    .vault { background: linear-gradient(135deg, #d97706, #422006); }
-    .insurance { background: linear-gradient(135deg, #22c55e, #14532d); }
-    .blackMarket { background: linear-gradient(135deg, #111827, #7f1d1d); }
-    .rolePower { background: linear-gradient(135deg, #a855f7, #4c1d95); }
-    .sector { background: linear-gradient(135deg, #0ea5e9, #164e63); }
-    .develop { background: linear-gradient(135deg, #f97316, #7c2d12); }
-    .leverage { background: linear-gradient(135deg, #dc2626, #111827); }
-    .reputation { background: linear-gradient(135deg, #fde047, #166534); color: #071007; }
-    .useItem { background: linear-gradient(135deg, #6366f1, #111827); }
-    .evadeRegulator { background: linear-gradient(135deg, #334155, #991b1b); }
-    .actionTitle, .actionDesc, .actionCost { position: relative; z-index: 2; display: block; }
-    .actionTitle { font-size: 17px; font-weight: 900; text-shadow: 0 2px 8px rgba(0,0,0,.9); }
-    .actionDesc { margin-top: 7px; font-size: 12px; color: #e7ffe1; line-height: 1.25; }
-    .reputation .actionDesc, .reputation .actionCost { color: #10210d; }
-    .actionCost { margin-top: 9px; font-size: 12px; color: #facc15; font-weight: 900; }
-    .cooldownFill { position: absolute; left: 0; bottom: 0; height: 6px; width: 0%; background: linear-gradient(90deg, #facc15, #22c55e); box-shadow: 0 0 12px #facc15; z-index: 3; }
-    .playersGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 12px; }
-    .player { position: relative; padding: 14px; background: rgba(8,18,8,.95); border-radius: 16px; border: 1px solid rgba(250,204,21,.24); overflow: hidden; min-height: 190px; }
-    .player.selfCard { border: 2px solid rgba(34,197,94,.85); box-shadow: 0 0 25px rgba(34,197,94,.25); }
-    .player.offlineCard { opacity: .58; filter: grayscale(.25); }
-    .player.leaderCard { border: 2px solid rgba(255,160,0,.9); animation: fireGlow .7s infinite alternate; }
-    .player.secondCard { border: 2px solid rgba(0,217,255,.75); box-shadow: 0 0 20px rgba(0,217,255,.25); }
-    .player.redHeat { box-shadow: 0 0 28px rgba(239,68,68,.32), inset 0 0 26px rgba(127,29,29,.18); }
-    .player.leverageOn::after { content: "2x"; position: absolute; right: 10px; top: 10px; color: #fff; background: rgba(220,38,38,.9); padding: 5px 8px; border-radius: 999px; font-weight: 900; box-shadow: 0 0 14px rgba(220,38,38,.8); }
-    @keyframes fireGlow { from { box-shadow: 0 0 8px rgba(255,90,0,.35); } to { box-shadow: 0 0 24px rgba(255,180,0,.78); } }
-    .fireLeader { color: #fff2a8; font-weight: 900; animation: fireText .55s infinite alternate; }
-    @keyframes fireText { 0% { color: #fff7ad; text-shadow: 0 0 5px #fff700, 0 0 12px #ff9900, 0 0 22px #ff3300; } 100% { color: #ff5a00; text-shadow: 0 0 7px #ffff00, 0 0 17px #ff7300, 0 0 32px #ff0000; } }
-    .rgbRunner { font-weight: 900; animation: rgbText 1.1s linear infinite; }
-    @keyframes rgbText { 0% { color: #ff004c; text-shadow: 0 0 8px #ff004c; } 20% { color: #ffea00; text-shadow: 0 0 8px #ffea00; } 40% { color: #00ff66; text-shadow: 0 0 8px #00ff66; } 60% { color: #00d9ff; text-shadow: 0 0 8px #00d9ff; } 80% { color: #a855f7; text-shadow: 0 0 8px #a855f7; } 100% { color: #ff004c; text-shadow: 0 0 8px #ff004c; } }
-    .normalName { color: #e8ffe1; font-weight: 800; }
-    .companyName { color: #facc15; font-size: 12px; font-weight: 900; margin-top: 3px; }
-    .badge { display: inline-block; margin: 3px 3px 0 0; padding: 3px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 900; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.3); color: #e5ffe0; }
-    .badge.hot { background: rgba(220,38,38,.32); color: #fecaca; }
-    .badge.good { background: rgba(34,197,94,.22); color: #bbf7d0; }
-    .score { font-size: 22px; color: #7cff4f; margin-top: 8px; font-weight: 900; }
-    .vaultText, .smallText { color: #facc15; font-size: 12px; margin-top: 4px; }
-    .gain { color: #fff700; font-size: 14px; min-height: 18px; margin-top: 4px; }
-    .barLine { margin-top: 8px; }
-    .barLabel { display: flex; justify-content: space-between; font-size: 11px; color: #d8ffd1; margin-bottom: 3px; }
-    .barWrap { height: 7px; background: rgba(255,255,255,.12); border-radius: 999px; overflow: hidden; }
-    .barFill { height: 100%; width: 0%; background: linear-gradient(90deg, #22c55e, #facc15, #ef4444); box-shadow: 0 0 12px rgba(250,204,21,.7); }
-    .progressFill { background: linear-gradient(90deg, #22c55e, #facc15, #ef4444); }
-    .heatFill { background: linear-gradient(90deg, #22c55e, #facc15, #ef4444); }
-    .repFill { background: linear-gradient(90deg, #ef4444, #facc15, #22c55e); }
-    .winner { text-align: center; font-size: 28px; color: #fff700; margin-top: 16px; font-weight: 900; text-shadow: 0 0 16px #fff700; animation: winnerPulse .8s infinite alternate; }
-    @keyframes winnerPulse { from { transform: scale(1); } to { transform: scale(1.05); } }
-    .warning { text-align: center; color: #facc15; font-weight: 900; min-height: 20px; margin-top: 10px; }
-    .log { text-align: left; color: #d9ffd3; font-size: 13px; background: rgba(0,0,0,.35); padding: 9px; border-radius: 8px; margin: 6px 0; border-left: 3px solid #facc15; }
-    .log.important { border-left-color: #ef4444; background: rgba(127,29,29,.30); }
-    .sidePanel { position: sticky; top: 14px; }
-    .moneyBoard, .statsBox, .myCompanyPanel { padding: 12px; margin-bottom: 13px; }
-    .moneyBoardTitle, .panelTitle { text-align: center; font-size: 13px; color: #facc15; font-weight: 900; margin-bottom: 8px; }
-    .moneyRow, .statLine { display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 13px; }
-    .leaderRow { background: rgba(250,204,21,.08); border-radius: 10px; padding: 7px; }
-    .statLine:last-child, .moneyRow:last-child { border-bottom: none; }
-    .tiny { color: #d8ffd1; font-size: 12px; line-height: 1.35; }
-    .roleModal, .decisionModal { position: fixed; inset: 0; z-index: 100000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.75); backdrop-filter: blur(8px); padding: 18px; }
-    .roleModal.show, .decisionModal.show { display: flex; }
-    .modalBox { width: min(950px, 96vw); max-height: 92vh; overflow: auto; background: radial-gradient(circle at top, rgba(250,204,21,.22), transparent 38%), linear-gradient(135deg, rgba(7,43,22,.98), rgba(9,10,20,.98)); border: 2px solid rgba(250,204,21,.75); border-radius: 26px; padding: 24px; box-shadow: 0 0 55px rgba(250,204,21,.35); animation: modalPop .25s ease-out; }
-    @keyframes modalPop { from { opacity: 0; transform: scale(.88); } to { opacity: 1; transform: scale(1); } }
-    .modalBox h2 { margin: 0; color: #facc15; font-size: 32px; text-shadow: 0 0 18px rgba(250,204,21,.55); text-align: center; }
-    .modalBox p { color: #e7ffe1; text-align: center; }
-    .roleGrid, .decisionOptions { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 16px; }
-    .roleCard, .decisionChoice { border: none; border-radius: 20px; cursor: pointer; text-align: left; padding: 16px; color: white; min-height: 165px; background: linear-gradient(135deg, #166534, #14532d); box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 15px 30px rgba(0,0,0,.4); transition: .14s; }
-    .roleCard:hover, .decisionChoice:hover { transform: translateY(-4px) scale(1.02); filter: brightness(1.18); }
-    .decisionChoice:nth-child(2) { background: linear-gradient(135deg, #991b1b, #312e81); }
-    .decisionChoice:nth-child(3) { background: linear-gradient(135deg, #dc2626, #111827); }
-    .roleCard strong, .decisionChoice strong { display:block; font-size:20px; margin-bottom:10px; color:#fff7ad; }
-    .roleCard span, .decisionChoice span { color:#f5ffe9; line-height:1.35; font-size:13px; display:block; margin-top:6px; }
-    .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 200000; background: rgba(0,0,0,.88); color: #facc15; border: 1px solid rgba(250,204,21,.45); padding: 12px 16px; border-radius: 999px; font-weight: 900; display: none; max-width: min(92vw, 680px); text-align: center; }
-    .toast.show { display: block; animation: toastPop 1.8s ease-out forwards; }
-    @keyframes toastPop { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 15% { opacity: 1; transform: translateX(-50%) translateY(0); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(10px); } }
-    .floating { position: fixed; pointer-events: none; font-weight: 900; color: #fff700; text-shadow: 0 0 8px #fff700; animation: floatUp .85s ease-out forwards; z-index: 9999; }
-    @keyframes floatUp { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-70px) scale(1.45); } }
-    .particle, .explosionParticle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 9998; background: #facc15; box-shadow: 0 0 12px #facc15; animation: particlePop .6s ease-out forwards; }
-    .particle { width: 8px; height: 8px; }
-    .explosionParticle { width: 12px; height: 12px; z-index: 99998; background: radial-gradient(circle, #fff7ad, #f97316, #dc2626); animation: particlePop .95s ease-out forwards; }
-    @keyframes particlePop { to { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
-    @keyframes shake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-5px,2px); } 40% { transform: translate(4px,-3px); } 60% { transform: translate(-3px,-2px); } 80% { transform: translate(3px,2px); } }
-    body.screenShake { animation: shake .38s linear; }
-    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .sidePanel { position: relative; top: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 12px; } h1 { font-size: 42px; } .topbar { grid-template-columns: 1fr; } }
-    @media (max-width: 720px) { .container { padding: 10px; } .table { padding: 10px; border-width: 6px; border-radius: 22px; } .nameRow { grid-template-columns: 1fr; } .actions { grid-template-columns: 1fr 1fr; } .actionBtn { min-height: 116px; } h1 { font-size: 34px; letter-spacing: 2px; } .modalBox h2 { font-size: 26px; } }
-  </style>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>TREEZCOIN</title>
+ <style>
+  * { box-sizing: border-box; }
+  :root {
+   --bg: #06100b;
+   --panel: rgba(7, 18, 12, 0.92);
+   --panel2: rgba(10, 31, 20, 0.88);
+   --line: rgba(206, 255, 210, 0.14);
+   --gold: #facc15;
+   --green: #71ff7a;
+   --red: #ef4444;
+   --blue: #38bdf8;
+   --muted: #a7c7a8;
+   --text: #ecffe9;
+  }
+
+  html, body {
+   margin: 0;
+   width: 100%;
+   height: 100%;
+   overflow: hidden;
+   font-family: Arial, Helvetica, sans-serif;
+   color: var(--text);
+   background:
+    radial-gradient(circle at 14% 6%, rgba(34,197,94,.20), transparent 26%),
+    radial-gradient(circle at 86% 8%, rgba(250,204,21,.16), transparent 24%),
+    linear-gradient(135deg, #040807 0%, #07150d 48%, #020403 100%);
+  }
+
+  body::before {
+   content: "";
+   position: fixed;
+   inset: 0;
+   pointer-events: none;
+   background:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+   background-size: 38px 38px;
+   opacity: .42;
+   z-index: 0;
+  }
+
+  button, input { font-family: inherit; }
+  #coinRain { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 1; opacity: .28; }
+  .bgCoin {
+   position: absolute;
+   top: -60px;
+   border-radius: 50%;
+   background: radial-gradient(circle at 30% 30%, #fff7a8, #facc15 44%, #b45309 100%);
+   color: #3b2400;
+   font-weight: 900;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-shadow: 0 0 14px rgba(250, 204, 21, 0.55);
+   animation: coinFall linear forwards;
+  }
+  @keyframes coinFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+  .appShell {
+   position: relative;
+   z-index: 2;
+   height: 100vh;
+   width: 100vw;
+   padding: 10px;
+   display: grid;
+   grid-template-rows: 70px minmax(0, 1fr) 24px;
+   gap: 8px;
+  }
+
+  .topCommand {
+   display: grid;
+   grid-template-columns: 250px minmax(0, 1fr) 220px 210px 120px;
+   gap: 8px;
+   min-height: 0;
+  }
+
+  .brandBox, .topBox, .status, .panel, .roleModal .modalBox, .decisionModal .modalBox {
+   background: linear-gradient(180deg, rgba(15, 36, 24, .96), rgba(4, 10, 7, .94));
+   border: 1px solid var(--line);
+   border-radius: 14px;
+   box-shadow: 0 16px 40px rgba(0,0,0,.28), inset 0 0 24px rgba(113,255,122,.035);
+   backdrop-filter: blur(10px);
+  }
+
+  .brandBox {
+   padding: 8px 12px;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+  }
+  .brandTop { display: flex; align-items: center; gap: 8px; }
+  .logoMark {
+   width: 34px; height: 34px; border-radius: 10px;
+   display: grid; place-items: center;
+   font-weight: 1000;
+   color: #051006;
+   background: linear-gradient(135deg, var(--gold), var(--green));
+   box-shadow: 0 0 18px rgba(113,255,122,.28);
+  }
+  h1 { font-size: 20px; margin: 0; letter-spacing: 1.5px; color: var(--green); line-height: 1; }
+  .subtitle { font-size: 10px; color: var(--muted); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .topBox { padding: 8px 10px; min-width: 0; }
+  .topLabel { font-size: 10px; color: var(--gold); font-weight: 900; letter-spacing: .9px; text-transform: uppercase; }
+  .topValue { margin-top: 5px; font-size: 15px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #marketBox { color: var(--green); }
+  #roundBox { color: #dfffe0; }
+  .status {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   padding: 8px;
+   color: var(--gold);
+   font-size: 12px;
+   font-weight: 900;
+   text-align: center;
+   overflow: hidden;
+  }
+
+  .profileQuick {
+   display: grid;
+   grid-template-columns: 1fr 1fr 94px;
+   gap: 6px;
+   align-items: center;
+  }
+  input {
+   width: 100%;
+   min-width: 0;
+   border: 1px solid rgba(250,204,21,.35);
+   border-radius: 10px;
+   background: rgba(0,0,0,.34);
+   color: var(--text);
+   outline: none;
+   padding: 9px 8px;
+   font-size: 12px;
+   font-weight: 800;
+  }
+  .saveName {
+   height: 36px;
+   border: none;
+   border-radius: 10px;
+   cursor: pointer;
+   font-weight: 1000;
+   font-size: 11px;
+   color: #061006;
+   background: linear-gradient(135deg, var(--gold), var(--green));
+   box-shadow: 0 0 14px rgba(250,204,21,.16);
+  }
+
+  .dashboard {
+   min-height: 0;
+   display: grid;
+   grid-template-columns: 310px minmax(0, 1fr) 330px;
+   gap: 8px;
+  }
+
+  .leftDeck, .centerDeck, .rightDeck {
+   min-height: 0;
+   display: grid;
+   gap: 8px;
+  }
+  .leftDeck { grid-template-rows: 178px minmax(0, 1fr); }
+  .centerDeck { grid-template-rows: 64px minmax(0, 1fr) 62px; }
+  .rightDeck { grid-template-rows: 178px 172px minmax(0, 1fr); }
+
+  .panel { padding: 10px; min-height: 0; overflow: hidden; }
+  .panelHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .panelTitle { color: var(--gold); font-size: 11px; font-weight: 1000; letter-spacing: .8px; text-transform: uppercase; }
+  .panelHint { color: var(--muted); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .sectorGrid {
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   gap: 6px;
+   height: calc(100% - 20px);
+  }
+  .sectorCard {
+   min-height: 0;
+   padding: 7px;
+   border-radius: 10px;
+   background: rgba(0,0,0,.28);
+   border: 1px solid rgba(255,255,255,.08);
+   overflow: hidden;
+  }
+  .sectorCard.ownedByMe { border-color: rgba(113,255,122,.75); box-shadow: 0 0 16px rgba(113,255,122,.12); }
+  .sectorLine { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .sectorIcon { font-size: 16px; width: 18px; text-align: center; }
+  .sectorTitle { color: #fff7ad; font-size: 11px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sectorOwner { margin-top: 4px; color: var(--green); font-size: 10px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sectorDesc { display: none; }
+
+  .actionPanel { min-height: 0; }
+  .actionGrid {
+   height: calc(100% - 20px);
+   display: grid;
+   grid-template-columns: 1fr 1fr;
+   grid-auto-rows: 1fr;
+   gap: 6px;
+  }
+  .actionBtn {
+   position: relative;
+   min-height: 0;
+   border: 1px solid rgba(255,255,255,.10);
+   border-radius: 11px;
+   cursor: pointer;
+   overflow: hidden;
+   color: white;
+   text-align: left;
+   padding: 7px 8px;
+   transition: .12s;
+   background: #123;
+   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 8px 18px rgba(0,0,0,.20);
+  }
+  .actionBtn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.58)); z-index: 0; }
+  .actionBtn:hover { transform: translateY(-1px); filter: brightness(1.14); }
+  .actionBtn:active { transform: scale(.98); }
+  .actionBtn.cooling { cursor: not-allowed; filter: grayscale(.35) brightness(.70); }
+  .actionTitle, .actionDesc, .actionCost { position: relative; z-index: 2; display: block; }
+  .actionTitle { font-size: 11.5px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .actionDesc { display: none; }
+  .actionCost { margin-top: 4px; color: rgba(255,255,255,.76); font-size: 9.5px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cooldownFill { position: absolute; left: 0; bottom: 0; height: 4px; width: 0%; background: linear-gradient(90deg, var(--gold), var(--green)); box-shadow: 0 0 10px var(--gold); z-index: 3; }
+  .mine { background: linear-gradient(135deg, #0f7a3a, #073b1c); }
+  .greed { background: linear-gradient(135deg, #79aa11, #244d0b); }
+  .mega { background: linear-gradient(135deg, #0284c7, #082f49); }
+  .steal { background: linear-gradient(135deg, #7c3aed, #2e1065); }
+  .tax { background: linear-gradient(135deg, #f59e0b, #7c2d12); }
+  .rug { background: linear-gradient(135deg, #ef4444, #450a0a); }
+  .throne { background: linear-gradient(135deg, #facc15, #991b1b); }
+  .jackpot { background: linear-gradient(135deg, #db2777, #312e81); }
+  .shield { background: linear-gradient(135deg, #14b8a6, #064e3b); }
+  .riskScan { background: linear-gradient(135deg, #38bdf8, #1e3a8a); }
+  .vault { background: linear-gradient(135deg, #d97706, #422006); }
+  .insurance { background: linear-gradient(135deg, #22c55e, #14532d); }
+  .blackMarket { background: linear-gradient(135deg, #111827, #7f1d1d); }
+  .rolePower { background: linear-gradient(135deg, #a855f7, #4c1d95); }
+  .sector { background: linear-gradient(135deg, #0ea5e9, #164e63); }
+  .develop { background: linear-gradient(135deg, #f97316, #7c2d12); }
+  .leverage { background: linear-gradient(135deg, #dc2626, #111827); }
+  .reputation { background: linear-gradient(135deg, #fde047, #166534); color: #071007; }
+  .useItem { background: linear-gradient(135deg, #6366f1, #111827); }
+  .evadeRegulator { background: linear-gradient(135deg, #334155, #991b1b); }
+
+  .warning {
+   display: flex;
+   align-items: center;
+   padding: 8px 10px;
+   border-radius: 14px;
+   background: rgba(250,204,21,.09);
+   border: 1px solid rgba(250,204,21,.18);
+   color: #ffe88a;
+   font-size: 12px;
+   font-weight: 900;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .winner {
+   position: absolute;
+   left: 50%; top: 50%;
+   transform: translate(-50%, -50%);
+   z-index: 20;
+   color: #fff7ad;
+   font-size: 28px;
+   font-weight: 1000;
+   text-shadow: 0 0 24px var(--gold);
+   pointer-events: none;
+  }
+
+  .playersGrid {
+   height: 100%;
+   display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   grid-template-rows: repeat(2, minmax(0, 1fr));
+   gap: 8px;
+  }
+  .player {
+   position: relative;
+   min-width: 0;
+   min-height: 0;
+   padding: 10px;
+   border-radius: 14px;
+   background: linear-gradient(180deg, rgba(13, 31, 20, .94), rgba(3, 8, 6, .95));
+   border: 1px solid rgba(250,204,21,.17);
+   overflow: hidden;
+  }
+  .player.selfCard { border: 2px solid rgba(113,255,122,.86); box-shadow: 0 0 24px rgba(113,255,122,.16); }
+  .player.offlineCard { opacity: .56; filter: grayscale(.25); }
+  .player.leaderCard { border: 2px solid rgba(255,171,45,.86); animation: fireGlow .75s infinite alternate; }
+  .player.secondCard { border: 2px solid rgba(56,189,248,.72); box-shadow: 0 0 18px rgba(56,189,248,.18); }
+  .player.redHeat { box-shadow: 0 0 24px rgba(239,68,68,.24), inset 0 0 20px rgba(127,29,29,.13); }
+  .player.leverageOn::after { content: "2x"; position: absolute; right: 8px; top: 8px; color: #fff; background: rgba(220,38,38,.92); padding: 4px 7px; border-radius: 999px; font-size: 10px; font-weight: 1000; }
+  @keyframes fireGlow { from { box-shadow: 0 0 8px rgba(255,90,0,.24); } to { box-shadow: 0 0 22px rgba(255,180,0,.56); } }
+  .fireLeader { color: #fff2a8; font-weight: 1000; text-shadow: 0 0 12px #ff7a00; }
+  .rgbRunner { font-weight: 1000; color: #67e8f9; text-shadow: 0 0 12px #22d3ee; }
+  .normalName { font-weight: 1000; color: #ecffe9; }
+  .playerTop { display: flex; justify-content: space-between; gap: 8px; align-items: start; }
+  .playerName { min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rankPill { flex: 0 0 auto; font-size: 10px; color: #071006; font-weight: 1000; background: var(--gold); border-radius: 999px; padding: 3px 7px; }
+  .companyName { color: var(--muted); font-size: 10px; font-weight: 900; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .score { margin-top: 8px; color: var(--green); font-size: clamp(17px, 1.55vw, 25px); font-weight: 1000; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vaultText, .smallText { color: #ffef9a; font-size: 10px; font-weight: 800; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .smallText { color: var(--muted); }
+  .gain { position: absolute; right: 10px; bottom: 9px; color: var(--gold); font-size: 12px; font-weight: 1000; }
+  .badgeLine { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 7px; max-height: 42px; overflow: hidden; }
+  .badge { display: inline-flex; align-items: center; max-width: 100%; padding: 3px 6px; border-radius: 999px; font-size: 9px; line-height: 1; color: #eaffd7; border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.06); font-weight: 900; white-space: nowrap; }
+  .badge.good { color: #bfffc5; background: rgba(34,197,94,.14); }
+  .badge.hot { color: #ffb4b4; background: rgba(239,68,68,.18); }
+  .miniBars { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 8px; }
+  .barLine { min-width: 0; }
+  .barLabel { display: flex; justify-content: space-between; gap: 4px; color: var(--muted); font-size: 9px; font-weight: 900; }
+  .barWrap { height: 5px; margin-top: 3px; border-radius: 999px; background: rgba(255,255,255,.10); overflow: hidden; }
+  .barFill { height: 100%; border-radius: 999px; }
+  .progressFill { background: linear-gradient(90deg, var(--green), var(--gold)); }
+  .heatFill { background: linear-gradient(90deg, #22c55e, #facc15, #ef4444); }
+  .repFill { background: linear-gradient(90deg, #ef4444, #facc15, #22c55e); }
+
+  .boardHeader {
+   display: grid;
+   grid-template-columns: repeat(5, minmax(0, 1fr));
+   gap: 8px;
+  }
+  .kpi {
+   background: linear-gradient(180deg, rgba(15, 36, 24, .96), rgba(4, 10, 7, .94));
+   border: 1px solid var(--line);
+   border-radius: 14px;
+   padding: 10px;
+   min-width: 0;
+   overflow: hidden;
+  }
+  .kpi span { display: block; color: var(--muted); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpi b { display: block; margin-top: 5px; color: var(--text); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .myCompanyPanel, .moneyBoard, .statsBox, .logsPanel { height: 100%; }
+  .statLine, .moneyRow {
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) auto;
+   gap: 8px;
+   align-items: center;
+   padding: 5px 0;
+   border-bottom: 1px solid rgba(255,255,255,.055);
+   font-size: 11px;
+   min-width: 0;
+  }
+  .statLine span, .moneyRow span { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .statLine b, .moneyRow b { color: var(--text); white-space: nowrap; font-size: 11px; }
+  .moneyBoardTitle { color: var(--gold); font-size: 11px; font-weight: 1000; letter-spacing: .8px; margin-bottom: 5px; text-transform: uppercase; }
+  .leaderRow { background: rgba(250,204,21,.08); border-radius: 9px; padding-left: 6px; padding-right: 6px; }
+  .tiny { margin-top: 7px; color: var(--muted); font-size: 10px; line-height: 1.35; max-height: 56px; overflow: hidden; }
+  .logsPanel { padding: 8px; }
+  #logs { height: calc(100% - 18px); overflow: hidden; }
+  .log {
+   padding: 5px 7px;
+   margin-bottom: 5px;
+   border-radius: 8px;
+   background: rgba(255,255,255,.045);
+   border-left: 3px solid rgba(250,204,21,.72);
+   color: #dfffe0;
+   font-size: 10px;
+   line-height: 1.25;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .log.important { border-left-color: var(--red); background: rgba(239,68,68,.10); color: #ffe4e4; }
+
+  .bottomTicker {
+   min-height: 0;
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) 210px;
+   gap: 8px;
+   align-items: center;
+  }
+  .tickerBox {
+   height: 24px;
+   border-radius: 10px;
+   border: 1px solid rgba(250,204,21,.15);
+   background: rgba(0,0,0,.28);
+   display: flex;
+   align-items: center;
+   padding: 0 10px;
+   color: var(--muted);
+   font-size: 11px;
+   font-weight: 900;
+   overflow: hidden;
+   white-space: nowrap;
+  }
+
+  .roleModal, .decisionModal {
+   position: fixed;
+   inset: 0;
+   z-index: 100000;
+   display: none;
+   align-items: center;
+   justify-content: center;
+   background: rgba(0,0,0,.74);
+   backdrop-filter: blur(8px);
+   padding: 18px;
+  }
+  .roleModal.show, .decisionModal.show { display: flex; }
+  .modalBox {
+   width: min(900px, 96vw);
+   max-height: 92vh;
+   overflow: hidden;
+   padding: 20px;
+   border-color: rgba(250,204,21,.48) !important;
+  }
+  .modalBox h2 { margin: 0; text-align: center; color: var(--gold); font-size: 28px; }
+  .modalBox p { text-align: center; color: var(--muted); font-size: 13px; }
+  .roleGrid, .decisionOptions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 14px; }
+  .roleCard, .decisionChoice {
+   border: 1px solid rgba(255,255,255,.10);
+   border-radius: 16px;
+   cursor: pointer;
+   text-align: left;
+   color: white;
+   padding: 14px;
+   min-height: 118px;
+   background: linear-gradient(135deg, #166534, #14532d);
+   transition: .14s;
+  }
+  .roleCard:hover, .decisionChoice:hover { transform: translateY(-2px); filter: brightness(1.14); }
+  .decisionChoice:nth-child(2) { background: linear-gradient(135deg, #991b1b, #312e81); }
+  .decisionChoice:nth-child(3) { background: linear-gradient(135deg, #0f766e, #1e3a8a); }
+  .roleCard strong, .decisionChoice strong { display: block; color: #fff7ad; font-size: 17px; margin-bottom: 8px; }
+  .roleCard span, .decisionChoice span { display: block; color: #f5ffe9; font-size: 12px; line-height: 1.35; margin-top: 5px; }
+
+  .toast {
+   position: fixed;
+   left: 50%;
+   bottom: 34px;
+   transform: translateX(-50%);
+   z-index: 200000;
+   background: rgba(0,0,0,.90);
+   color: var(--gold);
+   border: 1px solid rgba(250,204,21,.45);
+   padding: 10px 14px;
+   border-radius: 999px;
+   font-size: 12px;
+   font-weight: 1000;
+   display: none;
+   max-width: 78vw;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+  }
+  .toast.show { display: block; animation: toastPop 1.8s ease-out forwards; }
+  @keyframes toastPop {
+   0% { opacity: 0; transform: translateX(-50%) translateY(16px); }
+   15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+   80% { opacity: 1; }
+   100% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  }
+  .floating { position: fixed; pointer-events: none; font-weight: 1000; color: #fff700; text-shadow: 0 0 8px #fff700; animation: floatUp .85s ease-out forwards; z-index: 9999; }
+  @keyframes floatUp { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-70px) scale(1.45); } }
+  .particle, .explosionParticle { position: fixed; border-radius: 50%; pointer-events: none; z-index: 9998; background: var(--gold); box-shadow: 0 0 12px var(--gold); animation: particlePop .6s ease-out forwards; }
+  .particle { width: 7px; height: 7px; }
+  .explosionParticle { width: 10px; height: 10px; z-index: 99998; background: radial-gradient(circle, #fff7ad, #f97316, #dc2626); animation: particlePop .95s ease-out forwards; }
+  @keyframes particlePop { to { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
+  @keyframes shake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-5px,2px); } 40% { transform: translate(4px,-3px); } 60% { transform: translate(-3px,-2px); } 80% { transform: translate(3px,2px); } }
+  body.screenShake { animation: shake .38s linear; }
+
+  @media (max-width: 1180px), (max-height: 720px) {
+   .appShell { padding: 7px; grid-template-rows: 62px minmax(0, 1fr) 22px; gap: 6px; }
+   .topCommand { grid-template-columns: 210px minmax(0, 1fr) 180px 170px 96px; gap: 6px; }
+   h1 { font-size: 17px; }
+   .subtitle { font-size: 9px; }
+   .dashboard { grid-template-columns: 280px minmax(0, 1fr) 300px; gap: 6px; }
+   .leftDeck, .centerDeck, .rightDeck { gap: 6px; }
+   .leftDeck { grid-template-rows: 152px minmax(0,1fr); }
+   .rightDeck { grid-template-rows: 152px 150px minmax(0, 1fr); }
+   .centerDeck { grid-template-rows: 56px minmax(0,1fr) 52px; }
+   .panel { padding: 8px; }
+   .actionGrid { gap: 5px; }
+   .actionBtn { padding: 5px 7px; border-radius: 9px; }
+   .actionTitle { font-size: 10.5px; }
+   .actionCost { font-size: 8.8px; }
+   .player { padding: 8px; border-radius: 12px; }
+   .score { margin-top: 6px; }
+   .badgeLine { max-height: 34px; }
+   .statLine, .moneyRow { padding: 4px 0; font-size: 10px; }
+   .log { padding: 4px 6px; margin-bottom: 4px; }
+  }
+
+  @media (max-width: 900px) {
+   html, body { overflow: auto; }
+   .appShell { height: auto; min-height: 100vh; grid-template-rows: auto auto auto; }
+   .topCommand, .dashboard, .bottomTicker { grid-template-columns: 1fr; }
+   .leftDeck, .centerDeck, .rightDeck { grid-template-rows: auto; }
+   .sectorGrid, .playersGrid { height: auto; grid-template-columns: 1fr; grid-template-rows: auto; }
+   .actionGrid { height: auto; grid-template-columns: 1fr 1fr; }
+   .actionBtn { min-height: 54px; }
+   .player { min-height: 160px; }
+  }
+
+
+  /* SAFE PREMIUM MARKET SKIN - sadece görünüm, çalışan ID yapısına dokunmaz */
+  :root {
+   --bg: #080d18;
+   --panel: rgba(15, 23, 42, 0.94);
+   --panel2: rgba(17, 24, 39, 0.90);
+   --line: rgba(148, 163, 184, 0.18);
+   --gold: #f59e0b;
+   --green: #22c55e;
+   --green2: #34d399;
+   --red: #ef4444;
+   --blue: #38bdf8;
+   --muted: #94a3b8;
+   --text: #e5edf7;
+   --slate: #111827;
+   --slate2: #1e293b;
+   --purple: #8b5cf6;
+  }
+
+  html, body {
+   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+   background:
+    radial-gradient(circle at 12% 7%, rgba(34, 197, 94, .11), transparent 28%),
+    radial-gradient(circle at 86% 8%, rgba(56, 189, 248, .10), transparent 26%),
+    radial-gradient(circle at 50% 100%, rgba(245, 158, 11, .055), transparent 38%),
+    linear-gradient(135deg, #070b14 0%, #0b1220 46%, #111827 100%);
+   color: var(--text);
+  }
+
+  body::before {
+   background:
+    linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.024) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 32%, rgba(0,0,0,.24));
+   background-size: 42px 42px, 42px 42px, 100% 100%;
+   opacity: .62;
+  }
+
+  #coinRain { opacity: .08; filter: saturate(.6); }
+  .bgCoin {
+   background: radial-gradient(circle at 30% 30%, #e0f2fe, #38bdf8 42%, #0f172a 100%);
+   color: #e5edf7;
+   box-shadow: 0 0 18px rgba(56, 189, 248, .22);
+  }
+
+  .brandBox, .topBox, .status, .panel, .roleModal .modalBox, .decisionModal .modalBox, .boardHeader, .tickerBox {
+   background: linear-gradient(180deg, rgba(15, 23, 42, .94), rgba(8, 13, 24, .96));
+   border: 1px solid rgba(148, 163, 184, .18);
+   box-shadow: 0 18px 44px rgba(2, 6, 23, .42), inset 0 1px 0 rgba(255,255,255,.035);
+   backdrop-filter: blur(12px);
+  }
+
+  .brandBox { position: relative; overflow: hidden; }
+  .brandBox::after {
+   content: "";
+   position: absolute;
+   left: 12px;
+   right: 12px;
+   bottom: 0;
+   height: 2px;
+   background: linear-gradient(90deg, var(--green2), var(--blue), transparent);
+   opacity: .86;
+  }
+
+  .logoMark {
+   color: #07111f;
+   background: linear-gradient(135deg, #34d399, #38bdf8);
+   box-shadow: 0 0 22px rgba(56, 189, 248, .18);
+   border-radius: 12px;
+  }
+
+  h1 {
+   color: #f8fafc;
+   letter-spacing: 1.8px;
+   text-shadow: 0 0 18px rgba(56, 189, 248, .14);
+  }
+
+  .subtitle, .panelHint { color: var(--muted); }
+  .topLabel, .panelTitle, .moneyBoardTitle, .statsBox h3 { color: var(--blue); }
+  #marketBox { color: var(--green2); }
+  #roundBox { color: #f8fafc; }
+  .status { color: var(--green2); }
+
+  input {
+   background: rgba(15, 23, 42, .86);
+   border: 1px solid rgba(148, 163, 184, .22);
+   color: var(--text);
+   border-radius: 12px;
+  }
+
+  input:focus {
+   border-color: rgba(56, 189, 248, .58);
+   box-shadow: 0 0 0 3px rgba(56, 189, 248, .08);
+  }
+
+  .saveName {
+   color: #07111f;
+   background: linear-gradient(135deg, #34d399, #38bdf8);
+   box-shadow: 0 0 18px rgba(56, 189, 248, .14);
+  }
+
+  .sectorCard, .kpi, .player, .moneyRow, .statLine, .myLine {
+   background: rgba(255,255,255,.035);
+   border-color: rgba(148, 163, 184, .14);
+  }
+
+  .sectorCard.ownedByMe {
+   border-color: rgba(52, 211, 153, .65);
+   box-shadow: 0 0 16px rgba(52, 211, 153, .10);
+  }
+
+  .sectorTitle { color: #f8fafc; }
+  .sectorOwner { color: var(--green2); }
+
+  .actionBtn {
+   display: grid;
+   grid-template-columns: 26px minmax(0, 1fr);
+   grid-template-rows: auto auto auto;
+   column-gap: 7px;
+   align-content: center;
+   background: linear-gradient(135deg, #1e293b, #0f172a);
+   border: 1px solid rgba(148, 163, 184, .15);
+   box-shadow: 0 8px 18px rgba(2, 6, 23, .25), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  .actionBtn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+  .actionIcon {
+   position: relative;
+   z-index: 2;
+   grid-row: 1 / 4;
+   width: 24px;
+   height: 24px;
+   display: grid;
+   place-items: center;
+   border-radius: 9px;
+   background: rgba(255,255,255,.07);
+   border: 1px solid rgba(255,255,255,.08);
+   font-size: 14px;
+   align-self: center;
+  }
+
+  .actionTitle, .actionDesc, .actionCost { grid-column: 2; }
+  .actionTitle { color: #f8fafc; letter-spacing: .1px; }
+  .actionDesc { color: #cbd5e1; opacity: .92; }
+  .actionCost { color: var(--blue); }
+
+  .mine { background: linear-gradient(135deg, #0f766e, #134e4a); }
+  .greed { background: linear-gradient(135deg, #2563eb, #1e3a8a); }
+  .mega { background: linear-gradient(135deg, #0284c7, #1d4ed8); }
+  .jackpot { background: linear-gradient(135deg, #c026d3, #6d28d9); }
+  .steal { background: linear-gradient(135deg, #7c3aed, #4c1d95); }
+  .tax { background: linear-gradient(135deg, #d97706, #92400e); }
+  .throne { background: linear-gradient(135deg, #f97316, #9a3412); }
+  .rug { background: linear-gradient(135deg, #dc2626, #7f1d1d); }
+  .shield { background: linear-gradient(135deg, #10b981, #065f46); }
+  .riskScan { background: linear-gradient(135deg, #38bdf8, #1d4ed8); }
+  .vault { background: linear-gradient(135deg, #64748b, #334155); }
+  .insurance { background: linear-gradient(135deg, #22c55e, #166534); }
+  .sector { background: linear-gradient(135deg, #0891b2, #164e63); }
+  .develop { background: linear-gradient(135deg, #475569, #1e293b); }
+  .leverage { background: linear-gradient(135deg, #f59e0b, #7c2d12); }
+  .reputation { background: linear-gradient(135deg, #0ea5e9, #075985); }
+  .blackMarket { background: linear-gradient(135deg, #111827, #374151); }
+  .useItem { background: linear-gradient(135deg, #7c3aed, #312e81); }
+  .evadeRegulator { background: linear-gradient(135deg, #334155, #0f172a); }
+  .rolePower { background: linear-gradient(135deg, #8b5cf6, #4338ca); }
+
+  .player {
+   background: linear-gradient(180deg, rgba(30, 41, 59, .76), rgba(15, 23, 42, .92));
+   box-shadow: 0 10px 24px rgba(2, 6, 23, .30), inset 0 1px 0 rgba(255,255,255,.035);
+  }
+
+  .player.selfCard {
+   border-color: rgba(52, 211, 153, .65);
+   box-shadow: 0 0 0 1px rgba(52, 211, 153, .14), 0 12px 26px rgba(2,6,23,.32);
+  }
+
+  .player.leaderCard {
+   border-color: rgba(245, 158, 11, .78);
+   box-shadow: 0 0 0 1px rgba(245, 158, 11, .16), 0 0 22px rgba(245, 158, 11, .10);
+  }
+
+  .player.secondCard {
+   border-color: rgba(56, 189, 248, .60);
+   box-shadow: 0 0 0 1px rgba(56, 189, 248, .12), 0 0 20px rgba(56, 189, 248, .08);
+  }
+
+  .companyName { color: #f8fafc; }
+  .roleLine { color: var(--muted); }
+  .score { color: var(--green2); }
+  .subMoney { color: #cbd5e1; }
+  .barFill { background: linear-gradient(90deg, var(--green2), var(--blue), var(--gold)); }
+  .heatFill { background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444); }
+  .repFill { background: linear-gradient(90deg, #64748b, #38bdf8, #34d399); }
+  .badge { background: rgba(255,255,255,.055); color: #cbd5e1; border-color: rgba(148, 163, 184, .16); }
+
+  .moneyBoardTitle { text-transform: uppercase; letter-spacing: .8px; }
+  .leaderRow { background: rgba(245, 158, 11, .075); }
+  .log { background: rgba(255,255,255,.035); border-left-color: var(--blue); color: #dbeafe; }
+  .log.important { background: rgba(239, 68, 68, .08); border-left-color: var(--red); }
+  .warning { color: var(--gold); }
+  .winner { color: #f8fafc; text-shadow: 0 0 18px rgba(52, 211, 153, .20); }
+
+  .roleCard, .decisionChoice {
+   background: linear-gradient(135deg, #172033, #111827);
+   border: 1px solid rgba(148, 163, 184, .18);
+   box-shadow: 0 14px 30px rgba(2, 6, 23, .36);
+  }
+
+  .toast {
+   background: rgba(15, 23, 42, .96);
+   color: var(--green2);
+   border: 1px solid rgba(148, 163, 184, .22);
+   box-shadow: 0 12px 28px rgba(2, 6, 23, .36);
+  }
+
+ </style>
 </head>
 <body>
-  <div id="coinRain"></div>
-  <div id="toast" class="toast"></div>
+ <div id="coinRain"></div>
+ <div id="toast" class="toast"></div>
 
-  <div id="roleModal" class="roleModal">
-    <div class="modalBox">
-      <h2>Rolünü Seç</h2>
-      <p>Rol sonradan değişmez. Evet, kararların sonucu var. Ne korkunç bir oyun tasarımı.</p>
-      <div id="roleGrid" class="roleGrid"></div>
-    </div>
+ <div id="roleModal" class="roleModal">
+  <div class="modalBox">
+   <h2>Rolünü Seç</h2>
+   <p>Rol sonradan değişmez. Şirket kaderini seçiyorsun, yani bu kez butonun gerçekten anlamı var.</p>
+   <div id="roleGrid" class="roleGrid"></div>
   </div>
+ </div>
 
-  <div id="decisionModal" class="decisionModal">
-    <div class="modalBox">
-      <h2 id="decisionTitle">Şirket Kararı</h2>
-      <p id="decisionDesc">Bir şey kazanıyorsan bir şeyden vazgeçiyorsun.</p>
-      <div id="decisionOptions" class="decisionOptions"></div>
-    </div>
+ <div id="decisionModal" class="decisionModal">
+  <div class="modalBox">
+   <h2 id="decisionTitle">Şirket Kararı</h2>
+   <p id="decisionDesc">Bir şey kazanıyorsan bir şeyden vazgeçiyorsun.</p>
+   <div id="decisionOptions" class="decisionOptions"></div>
   </div>
+ </div>
 
-  <main class="container">
-    <div class="topbar">
-      <div class="hud">
-        <div class="hudTitle">PİYASA</div>
-        <div id="marketBox" class="hudValue">Yükleniyor...</div>
-      </div>
-      <div>
-        <h1>TREEZCOIN 4.0</h1>
-        <div class="subtitle">Şirket kur, sektör ele geçir, kaldıraç aç, regülatörden kaç.</div>
-      </div>
-      <div class="hud">
-        <div class="hudTitle">MASA / FİNAL</div>
-        <div id="roundBox" class="hudValue">--:--</div>
-      </div>
+ <main class="appShell">
+  <header class="topCommand">
+   <section class="brandBox">
+    <div class="brandTop">
+     <div class="logoMark">T</div>
+     <div>
+      <h1>TREEZCOIN</h1>
+      <div class="subtitle">CEO Market Command Center</div>
+     </div>
+    </div>
+   </section>
+
+   <section class="topBox profileQuick">
+    <input id="nameInput" placeholder="CEO adı" maxlength="16" />
+    <input id="companyInput" placeholder="Şirket adı" maxlength="22" />
+    <button class="saveName" onclick="setProfile()">KAYDET</button>
+   </section>
+
+   <section class="topBox">
+    <div class="topLabel">Piyasa</div>
+    <div id="marketBox" class="topValue">Yükleniyor...</div>
+   </section>
+
+   <section class="topBox">
+    <div class="topLabel">Masa / Final</div>
+    <div id="roundBox" class="topValue">--:--</div>
+   </section>
+
+   <div id="statusBox" class="status">Bağlanıyor...</div>
+  </header>
+
+  <section class="dashboard">
+   <aside class="leftDeck">
+    <section class="panel">
+     <div class="panelHead">
+      <div class="panelTitle">Piyasa Haritası</div>
+      <div class="panelHint">Sektör kontrolü</div>
+     </div>
+     <div id="sectorGrid" class="sectorGrid"></div>
+    </section>
+
+    <section class="panel actionPanel">
+     <div class="panelHead">
+      <div class="panelTitle">Yönetim Hamleleri</div>
+      <div class="panelHint">Tek ekran mod</div>
+     </div>
+     <div class="actionGrid">
+      <button class="actionBtn mine" onclick="sendAction('mine', event)"><span class="actionIcon">⛏️</span><span class="actionTitle">TREEZ Kaz</span><span class="actionDesc">Güvenli kazım.</span><span class="actionCost">Ana gelir</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn greed" onclick="sendAction('greed', event)"><span class="actionIcon">📈</span><span class="actionTitle">Katla</span><span class="actionDesc">Orta risk.</span><span class="actionCost">Riskli</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn mega" onclick="sendAction('mega', event)"><span class="actionIcon">🚀</span><span class="actionTitle">Mega Pump</span><span class="actionDesc">Büyük risk.</span><span class="actionCost">80K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)"><span class="actionIcon">🎰</span><span class="actionTitle">Jackpot</span><span class="actionDesc">%15 şans.</span><span class="actionCost">%15 / 180K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn steal" onclick="sendAction('steal', event)"><span class="actionIcon">🕵️</span><span class="actionTitle">Cüzdan Çal</span><span class="actionDesc">PvP.</span><span class="actionCost">Hedef al</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn tax" onclick="sendAction('tax', event)"><span class="actionIcon">🏛️</span><span class="actionTitle">Lider Vergisi</span><span class="actionDesc">Liderden kes.</span><span class="actionCost">Herkese bölüşür</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn throne" onclick="sendAction('throne', event)"><span class="actionIcon">👑</span><span class="actionTitle">Taht Soygunu</span><span class="actionDesc">Lider avı.</span><span class="actionCost">Anti-lider</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn rug" onclick="sendAction('rug', event)"><span class="actionIcon">💣</span><span class="actionTitle">Rug Pull</span><span class="actionDesc">Kaos.</span><span class="actionCost">120K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn shield" onclick="sendAction('shield', event)"><span class="actionIcon">🛡️</span><span class="actionTitle">Kalkan</span><span class="actionDesc">Savunma.</span><span class="actionCost">50K</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn riskScan" onclick="sendAction('riskScan', event)"><span class="actionIcon">📊</span><span class="actionTitle">Risk Analizi</span><span class="actionDesc">Ceza azaltır.</span><span class="actionCost">35K</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn vault" onclick="sendAction('vault', event)"><span class="actionIcon">🏦</span><span class="actionTitle">Kasaya Koy</span><span class="actionDesc">Koruma.</span><span class="actionCost">Skordan ayırır</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn insurance" onclick="sendAction('insurance', event)"><span class="actionIcon">🧾</span><span class="actionTitle">Sigorta</span><span class="actionDesc">Kayıp telafi.</span><span class="actionCost">Koruma</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn sector" onclick="sendAction('sector', event)"><span class="actionIcon">🧭</span><span class="actionTitle">Sektör Al</span><span class="actionDesc">Harita kontrol.</span><span class="actionCost">Market kontrol</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn develop" onclick="sendAction('develop', event)"><span class="actionIcon">🏢</span><span class="actionTitle">Şirket Geliştir</span><span class="actionDesc">Yol seç.</span><span class="actionCost">Strateji</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn leverage" onclick="sendAction('leverage', event)"><span class="actionIcon">⚡</span><span class="actionTitle">Kaldıraç</span><span class="actionDesc">2x / likidasyon.</span><span class="actionCost">250K+</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn reputation" onclick="sendAction('reputation', event)"><span class="actionIcon">🤝</span><span class="actionTitle">İtibar Yönet</span><span class="actionDesc">Isı düşür.</span><span class="actionCost">Para yak</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn blackMarket" onclick="sendAction('blackMarket', event)"><span class="actionIcon">🕶️</span><span class="actionTitle">Kara Borsa</span><span class="actionDesc">Eşya al.</span><span class="actionCost">120K / max 2</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn useItem" onclick="sendAction('useItem', event)"><span class="actionIcon">🧰</span><span class="actionTitle">Eşya Kullan</span><span class="actionDesc">Envanter.</span><span class="actionCost">Tek kullanımlık</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn evadeRegulator" onclick="sendAction('evadeRegulator', event)"><span class="actionIcon">🛂</span><span class="actionTitle">Reg. Atlat</span><span class="actionDesc">Baskı azalt.</span><span class="actionCost">Isı kontrol</span><span class="cooldownFill"></span></button>
+      <button class="actionBtn rolePower" onclick="sendAction('rolePower', event)"><span class="actionIcon">💎</span><span class="actionTitle">Rol Gücü</span><span class="actionDesc">Özel güç.</span><span class="actionCost">Uzun cd</span><span class="cooldownFill"></span></button>
+     </div>
+    </section>
+   </aside>
+
+   <section class="centerDeck">
+    <div class="boardHeader">
+     <div class="kpi"><span>Lider</span><b id="kpiLeader">-</b></div>
+     <div class="kpi"><span>En Kirli</span><b id="kpiHeat">-</b></div>
+     <div class="kpi"><span>En İtibarlı</span><b id="kpiRep">-</b></div>
+     <div class="kpi"><span>Regülatör</span><b id="kpiReg">-</b></div>
+     <div class="kpi"><span>Final Krizi</span><b id="kpiCrisis">-</b></div>
     </div>
 
-    <div id="statusBox" class="status">Bağlanıyor...</div>
+    <section class="panel" style="position:relative;">
+     <div class="panelHead">
+      <div class="panelTitle">Şirketler Masası</div>
+      <div class="panelHint">Max 6 oyuncu, 2x3 yönetim görünümü</div>
+     </div>
+     <div id="winnerBox" class="winner"></div>
+     <div id="players" class="playersGrid"></div>
+    </section>
 
-    <div class="layout">
-      <section class="table">
-        <div class="panel">
-          <div class="nameRow">
-            <input id="nameInput" placeholder="İsmin" maxlength="16" />
-            <input id="companyInput" placeholder="Şirket adı" maxlength="22" />
-            <button class="saveName" onclick="setProfile()">Profili Kaydet</button>
-          </div>
-        </div>
+    <div id="warningBox" class="warning"></div>
+   </section>
 
-        <div class="marketMap">
-          <h2 class="sectionTitle">Piyasa Haritası</h2>
-          <div id="sectorGrid" class="sectorGrid"></div>
-        </div>
+   <aside class="rightDeck">
+    <section id="myCompanyPanel" class="panel myCompanyPanel"></section>
+    <section id="moneyBoard" class="panel moneyBoard"></section>
+    <section class="panel logsPanel">
+     <div class="panelHead">
+      <div class="panelTitle">Canlı Haber Akışı</div>
+      <div class="panelHint">Son olaylar</div>
+     </div>
+     <div id="logs"></div>
+    </section>
+   </aside>
+  </section>
 
-        <div class="panel">
-          <h2 class="sectionTitle">Ana Hamleler</h2>
-          <div class="actions">
-            <button class="actionBtn mine" onclick="sendAction('mine', event)"><span class="actionTitle">TREEZ Kaz</span><span class="actionDesc">Güvenli kazım. Masa geçmişinde görünmez.</span><span class="actionCost">Ana gelir</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn greed" onclick="sendAction('greed', event)"><span class="actionTitle">Katla</span><span class="actionDesc">Orta riskli büyüme. Kaldıraç varsa iki tarafı da keser.</span><span class="actionCost">Riskli</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn mega" onclick="sendAction('mega', event)"><span class="actionTitle">Mega Pump</span><span class="actionDesc">Büyük hamle. Tutarsa büyütür, patlarsa şirket sunumu biter.</span><span class="actionCost">Gerekli: 80K</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn jackpot" onclick="sendAction('jackpot', event)"><span class="actionTitle">Jackpot</span><span class="actionDesc">Kazanma oranı sabit %15. Matematik hâlâ acımasız.</span><span class="actionCost">Gerekli: 180K</span><span class="cooldownFill"></span></button>
-          </div>
+  <footer class="bottomTicker">
+   <div class="tickerBox" id="statsBox"></div>
+   <div class="tickerBox">TREEZ Kaz logda yok • Jackpot %15 • Kalkan 50K</div>
+  </footer>
+ </main>
 
-          <div class="actionGroupTitle">PvP / Anti Lider</div>
-          <div class="actions">
-            <button class="actionBtn steal" onclick="sendAction('steal', event)"><span class="actionTitle">Cüzdan Çal</span><span class="actionDesc">Rastgele hedef. Offline oyuncular dahil.</span><span class="actionCost">Isı artırır</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn tax" onclick="sendAction('tax', event)"><span class="actionTitle">Lider Vergisi</span><span class="actionDesc">Liderden keser, tüm kullanıcılara bölüştürür.</span><span class="actionCost">Anti-lider</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn rug" onclick="sendAction('rug', event)"><span class="actionTitle">Rug Pull</span><span class="actionDesc">Masayı silkeler. Patlarsa kendi şirketin ağlar.</span><span class="actionCost">Gerekli: 120K</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn throne" onclick="sendAction('throne', event)"><span class="actionTitle">Taht Soygunu</span><span class="actionDesc">Lidere saldırır. Lider uzun kaldıysa daha mantıklı.</span><span class="actionCost">Lider avı</span><span class="cooldownFill"></span></button>
-          </div>
-
-          <div class="actionGroupTitle">Savunma / Ekonomi</div>
-          <div class="actions">
-            <button class="actionBtn shield" onclick="sendAction('shield', event)"><span class="actionTitle">Kalkan</span><span class="actionDesc">Sonraki saldırıyı azaltır.</span><span class="actionCost">Bedel: 50K</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn riskScan" onclick="sendAction('riskScan', event)"><span class="actionTitle">Risk Analizi</span><span class="actionDesc">Sonraki başarısız risk cezasını azaltır. Para basmaz.</span><span class="actionCost">Bedel: 35K</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn vault" onclick="sendAction('vault', event)"><span class="actionTitle">Kasaya Koy</span><span class="actionDesc">Parayı korur ama kazanma skorundan ayırır.</span><span class="actionCost">Servet koruma</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn insurance" onclick="sendAction('insurance', event)"><span class="actionTitle">Sigorta</span><span class="actionDesc">Sonraki büyük kaybın bir kısmını geri verir.</span><span class="actionCost">Koruma</span><span class="cooldownFill"></span></button>
-          </div>
-
-          <div class="actionGroupTitle">4.0 Borsa Savaşı</div>
-          <div class="actions">
-            <button class="actionBtn sector" onclick="sendAction('sector', event)"><span class="actionTitle">Sektör Ele Geçir</span><span class="actionDesc">6 sektörlük piyasa haritasında kontrol kurar.</span><span class="actionCost">Bölge savaşı</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn develop" onclick="sendAction('develop', event)"><span class="actionTitle">Şirket Geliştir</span><span class="actionDesc">Şirket yolunu seçer veya seviyesini artırır.</span><span class="actionCost">Strateji</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn leverage" onclick="sendAction('leverage', event)"><span class="actionTitle">Kaldıraç Aç</span><span class="actionDesc">2x kazanç, 2x kayıp. Likidasyon riski var.</span><span class="actionCost">Gerekli: 250K</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn reputation" onclick="sendAction('reputation', event)"><span class="actionTitle">İtibar Yönet</span><span class="actionDesc">Isıyı düşürür, regülatör riskini azaltır.</span><span class="actionCost">Para yakma</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn blackMarket" onclick="sendAction('blackMarket', event)"><span class="actionTitle">Kara Borsa</span><span class="actionDesc">120K yakar, tek kullanımlık eşya verir.</span><span class="actionCost">Max 2 eşya</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn useItem" onclick="sendAction('useItem', event)"><span class="actionTitle">Eşya Kullan</span><span class="actionDesc">Kara Borsa envanterindeki ilk eşyayı kullanır.</span><span class="actionCost">Envanter</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn evadeRegulator" onclick="sendAction('evadeRegulator', event)"><span class="actionTitle">Regülatörü Atlat</span><span class="actionDesc">TREEZ yakar, baskın riskini düşürmeye çalışır.</span><span class="actionCost">Isı kontrolü</span><span class="cooldownFill"></span></button>
-            <button class="actionBtn rolePower" onclick="sendAction('rolePower', event)"><span class="actionTitle">Rol Gücü</span><span class="actionDesc">Seçtiğin role özel büyük ve yavaş hamle.</span><span class="actionCost">Uzun cooldown</span><span class="cooldownFill"></span></button>
-          </div>
-        </div>
-
-        <div id="warningBox" class="warning"></div>
-        <div id="winnerBox" class="winner"></div>
-
-        <div class="panel">
-          <h2 class="sectionTitle">Oyuncular</h2>
-          <div id="players" class="playersGrid"></div>
-        </div>
-
-        <div class="panel">
-          <h2 class="sectionTitle">Masa Geçmişi</h2>
-          <div id="logs"></div>
-        </div>
-      </section>
-
-      <aside class="sidePanel">
-        <div id="myCompanyPanel" class="myCompanyPanel"></div>
-        <div id="moneyBoard" class="moneyBoard"></div>
-        <div id="statsBox" class="statsBox"></div>
-      </aside>
-    </div>
-  </main>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="game.js?v=4.0.0"></script>
+ <script src="/socket.io/socket.io.js"></script>
+ <script src="game.js?v=premium-safe-1"></script>
 </body>
 </html>
