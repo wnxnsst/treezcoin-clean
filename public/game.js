@@ -116,11 +116,19 @@ socket.on("session", (session) => {
     const input = el("companyInput");
     if (input && !input.value) input.value = myCompany;
   }
-  if (session.role) {
-    myRole = session.role;
-    localStorage.setItem("treez_role", myRole);
-    hideRoleModal();
+
+  if (Object.prototype.hasOwnProperty.call(session, "role")) {
+    if (session.role) {
+      myRole = session.role;
+      localStorage.setItem("treez_role", myRole);
+      hideRoleModal();
+    } else {
+      myRole = "";
+      localStorage.removeItem("treez_role");
+      setTimeout(() => showRoleModal(), 250);
+    }
   }
+
   if (session.playerId) myPlayerId = session.playerId;
 });
 
@@ -326,6 +334,12 @@ function createParticles(x, y, count = 14) {
 }
 
 function showRoleModal(roles = []) {
+  if (myRole) {
+    hideRoleModal();
+    toast("Rol kilitli. Bir kez seçilen rol değişmez.");
+    return;
+  }
+
   const modal = el("roleModal");
   const grid = el("roleGrid");
   if (!modal || !grid) return;
@@ -353,10 +367,14 @@ function showRoleModal(roles = []) {
       <span><b>Eksi:</b> ${escapeHtml(role.minus)}</span>
     `;
     button.onclick = () => {
-      myRole = role.id;
-      localStorage.setItem("treez_role", myRole);
+      if (myRole) {
+        toast("Rol kilitli. Bir kez seçilen rol değişmez.");
+        hideRoleModal();
+        return;
+      }
+
+      button.disabled = true;
       socket.emit("chooseRole", role.id);
-      hideRoleModal();
       playBigSound();
     };
     grid.appendChild(button);
@@ -467,6 +485,7 @@ function renderPlayers(state) {
     const gainText = player.lastGain > 0 ? `+${formatScore(player.lastGain)}` : player.lastGain < 0 ? `-${formatScore(Math.abs(player.lastGain))}` : "";
 
     const badges = [];
+    if (player.isBot) badges.push(badge("🤖 BOT", "hot"));
     badges.push(badge(player.online ? "online" : "offline", player.online ? "good" : ""));
     badges.push(badge(`${player.roleIcon || ""} ${player.roleTitle || "Rolsüz"}`));
     if (player.heatTitle) badges.push(badge(player.heatTitle, heatValue >= 51 ? "hot" : "good"));
@@ -527,7 +546,7 @@ function renderMoneyBoard(players) {
   (players || []).forEach((player, index) => {
     html += `
       <div class="moneyRow ${index === 0 ? "leaderRow" : ""}">
-        <span>${index + 1}. ${player.online ? "●" : "○"} ${escapeHtml(player.name)}</span>
+        <span>${index + 1}. ${player.isBot ? "🤖" : (player.online ? "●" : "○")} ${escapeHtml(player.name)}</span>
         <strong>${formatScore(player.score)}</strong>
       </div>
     `;
