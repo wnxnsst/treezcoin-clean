@@ -24,6 +24,26 @@ const CONFIG = {
   restartDelayMs: 6500
 };
 
+const BOT_DEFS = [
+  {
+    key: "bot_atlas",
+    name: "Atlas",
+    company: "ATLAS CAPITAL",
+    role: "banker",
+    style: "safe",
+    preferredSectors: ["bank", "media", "mine"]
+  },
+  {
+    key: "bot_shadow",
+    name: "Shadow",
+    company: "SHADOW FUND",
+    role: "saboteur",
+    style: "aggressive",
+    preferredSectors: ["darknet", "palace", "exchange"]
+  }
+];
+
+
 const ROLE_DEFS = {
   miner: {
     id: "miner",
@@ -253,6 +273,32 @@ function cleanText(value, max = 20, fallback = "Player") {
   return text || fallback;
 }
 
+function sameText(a, b) {
+  return String(a || "").trim().toLowerCase() === String(b || "").trim().toLowerCase();
+}
+
+function sameCompany(a, b) {
+  return String(a || "").trim().toUpperCase() === String(b || "").trim().toUpperCase();
+}
+
+function findExistingPlayerByProfile(payload = {}) {
+  const wantedName = cleanText(payload.name, 16, "");
+  const wantedCompany = cleanText(payload.company || (wantedName ? `${wantedName} Capital` : ""), 22, "").toUpperCase();
+
+  if (!wantedName && !wantedCompany) return null;
+
+  const list = getPlayersArray().filter((p) => !p.isBot);
+
+  // Önce offline eşleşmeyi al. Böylece eski oyuncuya geri döner.
+  let match = list.find((p) => !p.online && sameText(p.name, wantedName) && sameCompany(p.company, wantedCompany));
+  if (match) return match;
+
+  // Sonra online eşleşme varsa onu kullan. Eski socket koparılır, kopya oyuncu oluşmaz.
+  match = list.find((p) => sameText(p.name, wantedName) && sameCompany(p.company, wantedCompany));
+  return match || null;
+}
+
+
 function createRound() {
   roundCounter += 1;
   const roundNumber = roundCounter;
@@ -310,7 +356,10 @@ function freshPlayer(token, payload = {}) {
     name,
     company,
     role: roleId,
-    online: false,
+    isBot: token.startsWith("bot_token_") && Boolean(payload.isBot),
+    botStyle: token.startsWith("bot_token_") ? (payload.botStyle || "") : "",
+    preferredSectors: token.startsWith("bot_token_") && Array.isArray(payload.preferredSectors) ? payload.preferredSectors : [],
+    online: token.startsWith("bot_token_") && Boolean(payload.isBot),
     lastSeen: now(),
     score: CONFIG.startScore,
     vault: 0,
@@ -333,6 +382,138 @@ function freshPlayer(token, payload = {}) {
   };
 }
 
+function ensureBots() {
+  BOT_DEFS.forEach((bot) => {
+    const token = `bot_token_${bot.key}`;
+    if (players.has(token)) return;
+
+    const player = freshPlayer(token, {
+      name: bot.name,
+      company: bot.company,
+      role: bot.role,
+      isBot: true,
+      botStyle: bot.style,
+      preferredSectors: bot.preferredSectors
+    });
+
+    player.id = `bot_${bot.key}`;
+    player.online = true;
+    player.socketId = null;
+    player.heat = bot.role === "saboteur" ? 22 : bot.role === "banker" ? 4 : 10;
+    player.reputation = bot.role === "banker" ? 62 : bot.role === "saboteur" ? 35 : 50;
+    player.cooldowns = {};
+    player.nextBotMoveAt = now() + rand(2500, 6500);
+    players.set(token, player);
+    addLog(`${player.name} bot masaya katıldı.`, true);
+  });
+}
+
+function resetBotForRound(player) {
+  player.online = true;
+  player.socketId = null;
+  if (player.token.includes("atlas")) {
+    player.role = "banker";
+    player.botStyle = "safe";
+    player.preferredSectors = ["bank", "media", "mine"];
+  } else if (player.token.includes("shadow")) {
+    player.role = "saboteur";
+    player.botStyle = "aggressive";
+    player.preferredSectors = ["darknet", "palace", "exchange"];
+  }
+  player.nextBotMoveAt = now() + rand(2800, 7000);
+}
+
+function livingHumanPlayers() {
+  return getActivePlayers().filter((p) => !p.isBot);
+}
+
+function chooseBotSector(player) {
+  const preferred = Array.isArray(player.preferredSectors) ? player.preferredSectors : [];
+  for (const id of preferred) {
+    const sector = round.sectors[id];
+    if (sector && sector.ownerId !== player.id) return id;
+  }
+
+  const open = Object.values(round.sectors).find((s) => !s.ownerId);
+  if (open) return open.id;
+
+  const enemy = Object.values(round.sectors).find((s) => s.ownerId && s.ownerId !== player.id);
+  return enemy?.id || "";
+}
+
+function botAffordableSector(player) {
+  const sectorId = chooseBotSector(player);
+  if (!sectorId) return "";
+  const sector = round.sectors[sectorId];
+  const cost = sector.ownerId ? sector.takeoverCost : sector.emptyCost;
+  return player.score >= cost ? sectorId : "";
+}
+
+function chooseBotMove(player) {
+  const top = leader();
+  const humans = livingHumanPlayers();
+  const targetHuman = humans
+    .filter((p) => p.id !== player.id && p.score > 0)
+    .sort((a, b) => b.score - a.score)[0];
+
+  const sectorId = botAffordableSector(player);
+
+  if (player.botStyle === "safe") {
+    if (sectorId && Math.random() < 0.23) return { type: "takeSector", sectorId };
+    if (player.shield < 1 && player.score > 110_000 && Math.random() < 0.18) return { type: "shield" };
+    if (player.insurance < 1 && player.score > 150_000 && Math.random() < 0.16) return { type: "insurance" };
+    if (player.heat > 55 && player.score > 110_000 && Math.random() < 0.18) return { type: "reputation" };
+    if (player.score > 520_000 && Math.random() < 0.17) return { type: "greed" };
+    return { type: "mine" };
+  }
+
+  // Shadow Fund: lideri dürten ama oyunu boğmayan saldırgan bot.
+  if (sectorId && Math.random() < 0.18) return { type: "takeSector", sectorId };
+
+  if (targetHuman && top && top.id === targetHuman.id && targetHuman.score > player.score * 1.15 && Math.random() < 0.28) {
+    return { type: "pressureCompany", targetId: targetHuman.id };
+  }
+
+  if (targetHuman && targetHuman.score > 280_000 && Math.random() < 0.24) {
+    return { type: "steal", targetId: targetHuman.id };
+  }
+
+  if (top && top.id !== player.id && top.score > 700_000 && Math.random() < 0.18) return { type: "tax" };
+  if (player.score > 650_000 && Math.random() < 0.10) return { type: "mega" };
+  if (player.score > 900_000 && Math.random() < 0.06) return { type: "jackpot" };
+  if (player.heat > 70 && player.score > 100_000 && Math.random() < 0.16) return { type: "reputation" };
+  return Math.random() < 0.35 ? { type: "greed" } : { type: "mine" };
+}
+
+function runBots() {
+  if (round.winner || round.restarting) return;
+
+  ensureBots();
+
+  getPlayersArray().filter((p) => p.isBot).forEach((bot) => {
+    bot.online = true;
+
+    if (bot.pendingDecision) {
+      const options = bot.pendingDecision.options || [];
+      const choice = bot.botStyle === "safe"
+        ? options.find((o) => /Temkinli|Regüle|Güvenli/i.test(o.title)) || options[0]
+        : options.find((o) => /Agresif|Gölge|Piyasayı/i.test(o.title)) || options[0];
+
+      if (choice) applyDecision(bot, choice.id);
+      bot.nextBotMoveAt = now() + rand(2500, 5200);
+      return;
+    }
+
+    if ((bot.nextBotMoveAt || 0) > now()) return;
+
+    const move = chooseBotMove(bot);
+    if (move) performAction(bot, move);
+
+    bot.nextBotMoveAt = now() + (bot.botStyle === "safe" ? rand(3600, 7600) : rand(3200, 6800));
+  });
+}
+
+
 function getPlayersArray() {
   return Array.from(players.values());
 }
@@ -342,7 +523,7 @@ function getActivePlayers() {
 }
 
 function getOnlinePlayers() {
-  return getPlayersArray().filter((p) => p.online);
+  return getPlayersArray().filter((p) => p.online && !p.isBot);
 }
 
 function findPlayerById(id) {
@@ -546,12 +727,12 @@ function applyActionCount(player, type) {
 }
 
 function checkMilestones(player) {
-  if (!player || player.pendingDecision || !player.socketId) return;
+  if (!player || player.pendingDecision || (!player.socketId && !player.isBot)) return;
   const points = [500_000, 2_000_000, 5_000_000];
   for (const point of points) {
     if (player.score >= point && !player.milestones[point]) {
       player.pendingDecision = createMilestoneOffer(point);
-      io.to(player.socketId).emit("decisionOffer", player.pendingDecision);
+      if (player.socketId) io.to(player.socketId).emit("decisionOffer", player.pendingDecision);
       addLog(`${player.name} ${format(point)} TREEZ şirket kararına geldi.`, false);
       return;
     }
@@ -1027,6 +1208,49 @@ function performAction(player, payload) {
   broadcastState();
 }
 
+
+function resetPlayerForNewRound(player, clearRole = true) {
+  player.score = CONFIG.startScore;
+  player.vault = 0;
+  player.shield = 0;
+  player.insurance = 0;
+  player.riskAnalysis = 0;
+
+  if (clearRole) {
+    player.role = "";
+    player.heat = 10;
+    player.reputation = 50;
+  } else {
+    player.heat = player.role === "thief" ? 18 : player.role === "saboteur" ? 22 : player.role === "banker" ? 4 : 10;
+    player.reputation = player.role === "banker" ? 62 : player.role === "insurer" ? 58 : player.role === "thief" ? 38 : player.role === "saboteur" ? 35 : 50;
+  }
+
+  player.pendingDecision = null;
+  player.milestones = {};
+  player.traits = {};
+  player.leverageUntil = 0;
+  player.liquidatedUntil = 0;
+  player.lastGain = 0;
+  player.cooldowns = {};
+  player.actionCounts = {};
+  player.attackedCount = 0;
+  player.stolenTotal = 0;
+  player.sectorsTaken = 0;
+}
+
+function sendRoleResetToClient(player) {
+  if (!player?.socketId) return;
+  io.to(player.socketId).emit("session", {
+    token: player.token,
+    playerId: player.id,
+    name: player.name,
+    company: player.company,
+    role: "",
+    roleLocked: false
+  });
+  io.to(player.socketId).emit("needRole", { roles: Object.values(ROLE_DEFS) });
+}
+
 function checkWin() {
   if (round.winner || round.restarting) return;
   const top = leader();
@@ -1048,26 +1272,16 @@ function finishRound(reason, winnerPlayer) {
     const existing = getPlayersArray();
     round = createRound();
     existing.forEach((p) => {
-      p.score = CONFIG.startScore;
-      p.vault = 0;
-      p.shield = 0;
-      p.insurance = 0;
-      p.riskAnalysis = 0;
-      p.heat = p.role === "thief" ? 18 : p.role === "saboteur" ? 22 : p.role === "banker" ? 4 : 10;
-      p.reputation = p.role === "banker" ? 62 : p.role === "insurer" ? 58 : p.role === "thief" ? 38 : p.role === "saboteur" ? 35 : 50;
-      p.pendingDecision = null;
-      p.milestones = {};
-      p.traits = {};
-      p.leverageUntil = 0;
-      p.liquidatedUntil = 0;
-      p.lastGain = 0;
-      p.cooldowns = {};
-      p.actionCounts = {};
-      p.attackedCount = 0;
-      p.stolenTotal = 0;
-      p.sectorsTaken = 0;
+      if (p.isBot) {
+        resetPlayerForNewRound(p, false);
+        resetBotForRound(p);
+      } else {
+        resetPlayerForNewRound(p, true);
+        sendRoleResetToClient(p);
+      }
     });
-    addLog("Yeni masa başladı.", true);
+    ensureBots();
+    addLog("Yeni masa başladı. İnsan oyuncular tekrar rol seçebilir.", true);
     broadcastState();
   }, CONFIG.restartDelayMs);
 }
@@ -1088,6 +1302,8 @@ function tick() {
     if (p.leverageUntil && p.leverageUntil < now()) p.leverageUntil = 0;
   });
 
+  runBots();
+
   checkWin();
   broadcastState();
 }
@@ -1096,6 +1312,7 @@ function serializePlayer(player) {
   const ownedSectors = Object.values(round.sectors).filter((s) => s.ownerId === player.id).map((s) => s.id);
   return {
     id: player.id,
+    isBot: Boolean(player.isBot),
     name: player.name,
     company: player.company,
     role: player.role,
@@ -1163,22 +1380,16 @@ function broadcastState() {
 function resetRoundOnly() {
   round = createRound();
   getPlayersArray().forEach((p) => {
-    p.score = CONFIG.startScore;
-    p.vault = 0;
-    p.shield = 0;
-    p.insurance = 0;
-    p.riskAnalysis = 0;
-    p.pendingDecision = null;
-    p.milestones = {};
-    p.traits = {};
-    p.cooldowns = {};
-    p.lastGain = 0;
-    p.leverageUntil = 0;
-    p.liquidatedUntil = 0;
-    p.heat = p.role === "thief" ? 18 : p.role === "saboteur" ? 22 : p.role === "banker" ? 4 : 10;
-    p.reputation = p.role === "banker" ? 62 : p.role === "insurer" ? 58 : p.role === "thief" ? 38 : p.role === "saboteur" ? 35 : 50;
+    if (p.isBot) {
+      resetPlayerForNewRound(p, false);
+      resetBotForRound(p);
+    } else {
+      resetPlayerForNewRound(p, true);
+      sendRoleResetToClient(p);
+    }
   });
-  addLog("Admin masayı resetledi.", true);
+  ensureBots();
+  addLog("Admin masayı resetledi. İnsan oyuncular tekrar rol seçebilir.", true);
   broadcastState();
 }
 
@@ -1187,6 +1398,7 @@ function wipeAll() {
   sockets.clear();
   round = createRound();
   addLog("Admin komple wipe yaptı.", true);
+  ensureBots();
   broadcastState();
 }
 
@@ -1232,13 +1444,21 @@ io.on("connection", (socket) => {
     let player = players.get(token);
 
     if (!player) {
-      if (getOnlinePlayers().length >= CONFIG.maxOnlinePlayers) {
-        socket.emit("roomFull");
-        return;
+      const existingByProfile = findExistingPlayerByProfile(payload);
+
+      if (existingByProfile) {
+        player = existingByProfile;
+        token = player.token;
+        addLog(`${player.name} eski şirketine geri bağlandı.`, false);
+      } else {
+        if (getOnlinePlayers().length >= CONFIG.maxOnlinePlayers) {
+          socket.emit("roomFull");
+          return;
+        }
+        player = freshPlayer(token, payload);
+        players.set(token, player);
+        addLog(`${player.name} masaya katıldı.`, true);
       }
-      player = freshPlayer(token, payload);
-      players.set(token, player);
-      addLog(`${player.name} masaya katıldı.`, true);
     }
 
     if (player.socketId && player.socketId !== socket.id) {
@@ -1256,7 +1476,8 @@ io.on("connection", (socket) => {
       playerId: player.id,
       name: player.name,
       company: player.company,
-      role: player.role
+      role: player.role,
+      roleLocked: Boolean(player.role)
     });
 
     if (!player.role) {
@@ -1270,11 +1491,25 @@ io.on("connection", (socket) => {
     const token = sockets.get(socket.id);
     const player = players.get(token);
     if (!player) return;
-    player.name = cleanText(payload.name, 16, player.name);
-    player.company = cleanText(payload.company || `${player.name} Capital`, 22, `${player.name} Capital`).toUpperCase();
+
+    const nextName = cleanText(payload.name, 16, player.name);
+    const nextCompany = cleanText(payload.company || `${nextName} Capital`, 22, `${nextName} Capital`).toUpperCase();
+
+    const profileTaken = getPlayersArray().find((p) => {
+      return p.id !== player.id && sameText(p.name, nextName) && sameCompany(p.company, nextCompany);
+    });
+
+    if (profileTaken) {
+      socketToast(player, "Bu CEO adı + şirket zaten masada. Kopya şirket açamazsın.");
+      socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role, roleLocked: Boolean(player.role) });
+      return;
+    }
+
+    player.name = nextName;
+    player.company = nextCompany;
     const owned = Object.values(round.sectors).filter((s) => s.ownerId === player.id);
     owned.forEach((s) => { s.ownerName = player.name; });
-    socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role });
+    socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role, roleLocked: Boolean(player.role) });
     broadcastState();
   });
 
@@ -1283,7 +1518,7 @@ io.on("connection", (socket) => {
     const player = players.get(token);
     if (!player) return;
     player.name = cleanText(name, 16, player.name);
-    socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role });
+    socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role, roleLocked: Boolean(player.role) });
     broadcastState();
   });
 
@@ -1293,6 +1528,7 @@ io.on("connection", (socket) => {
     if (!player) return;
     if (player.role) {
       socketToast(player, "Rol sonradan değişmez.");
+      socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role, roleLocked: true });
       return;
     }
     if (!ROLE_DEFS[roleId]) {
@@ -1304,7 +1540,7 @@ io.on("connection", (socket) => {
     if (roleId === "saboteur") { player.heat = 22; player.reputation = 35; }
     if (roleId === "banker") { player.heat = 4; player.reputation = 62; }
     if (roleId === "insurer") { player.heat = 7; player.reputation = 58; }
-    socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role });
+    socket.emit("session", { token, playerId: player.id, name: player.name, company: player.company, role: player.role, roleLocked: true });
     addLog(`${player.name} rol seçti: ${roleTitle(player)}.`, true);
     broadcastState();
   });
@@ -1337,6 +1573,7 @@ io.on("connection", (socket) => {
   });
 });
 
+ensureBots();
 setInterval(tick, 1000);
 
 server.listen(PORT, () => {
